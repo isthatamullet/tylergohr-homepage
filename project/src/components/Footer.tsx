@@ -93,9 +93,12 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-white font-medium mb-4">Contact</h4>
             <ul className="space-y-2 text-gray-400">
-              <li>Los Angeles, CA</li>
-              <li>info@digitalorder.com</li>
-              <li>+1 (555) 123-4567</li>
+              <li>Meridian, ID</li>
+<li>
+  <a href="tel:+14249011420" className="text-gray-400 hover:text-teal transition-colors duration-300">
+    +1 (424) 901-1420
+  </a>
+</li>
             </ul>
           </div>
         </div>

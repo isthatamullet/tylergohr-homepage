@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
           
           <div className="flex space-x-6">
             <a 
-              href="#" 
+              href="https://www.linkedin.com/in/tylergohr/" 
               className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all duration-300"
               aria-label="LinkedIn"
             >
@@ -27,7 +27,7 @@ const Footer: React.FC = () => {
               <Twitter size={18} />
             </a>
             <a 
-              href="#" 
+              href="https://www.instagram.com/harold_n_louise" 
               className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all duration-300"
               aria-label="Instagram"
             >

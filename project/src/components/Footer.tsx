@@ -24,9 +24,9 @@ const Footer: React.FC = () => {
               <Linkedin size={18} />
             </a>
 
-            {/* YouTube Link (Replaced Twitter) */}
+            {/* YouTube Link (Replaced Twitter & added sub_confirmation) */}
             <a
-              href="https://youtube.com/@explicatostudios" // Your YouTube channel URL
+              href="https://youtube.com/@explicatostudios?sub_confirmation=1" // Your YouTube channel URL with parameter
               target="_blank" // Opens in new tab
               rel="noopener noreferrer" // Security best practice
               className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all duration-300"
@@ -48,8 +48,10 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
+        {/* Rest of the footer code remains the same... */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pt-8 border-t border-white/10">
-          <div>
+         {/* ... Navigate ... */}
+         <div>
             <h4 className="text-white font-medium mb-4">Navigate</h4>
             <ul className="space-y-2">
               {['Home', 'Services', 'Experience', 'Portfolio', 'Contact'].map((item, index) => (
@@ -61,8 +63,8 @@ const Footer: React.FC = () => {
               ))}
             </ul>
           </div>
-
-          <div>
+         {/* ... Services ... */}
+         <div>
             <h4 className="text-white font-medium mb-4">Services</h4>
             <ul className="space-y-2">
               {['Content Architecture', 'Metadata Frameworks', 'Multi-Platform Distribution', 'Team Training'].map((item, index) => (
@@ -74,7 +76,7 @@ const Footer: React.FC = () => {
               ))}
             </ul>
           </div>
-
+         {/* ... Legal ... */}
           <div>
             <h4 className="text-white font-medium mb-4">Legal</h4>
             <ul className="space-y-2">
@@ -87,7 +89,7 @@ const Footer: React.FC = () => {
               ))}
             </ul>
           </div>
-
+         {/* ... Contact ... */}
           <div>
             <h4 className="text-white font-medium mb-4">Contact</h4>
             <ul className="space-y-2 text-gray-400">

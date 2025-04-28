@@ -34,7 +34,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: project/package-lock.json # Specify lock file location
       - name: Install dependencies
-        run: npm install --prefix project # Install dependencies in the project folder
+        run: npm ci --prefix project # Install dependencies in the project folder
       - name: Build
         run: npm run build --prefix project # Run build script from the project folder
       - name: Setup Pages

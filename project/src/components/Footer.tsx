@@ -1,5 +1,6 @@
 import React from 'react';
-import { Instagram, Linkedin, Twitter } from 'lucide-react';
+// Import Youtube instead of Twitter
+import { Instagram, Linkedin, Youtube } from 'lucide-react';
 import Logo from './Logo';
 
 const Footer: React.FC = () => {
@@ -10,34 +11,43 @@ const Footer: React.FC = () => {
           <div className="mb-6 md:mb-0">
             <Logo />
           </div>
-          
+
           <div className="flex space-x-6">
+            {/* LinkedIn Link */}
             <a
-  href="https://www.linkedin.com/in/tylergohr/"
-  className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all duration-300"
-  aria-label="LinkedIn"
-  target="_blank"
-  rel="noopener noreferrer"
->
+              href="https://www.linkedin.com/in/tylergohr/"
+              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all duration-300"
+              aria-label="LinkedIn"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Linkedin size={18} />
             </a>
-            <a 
-              href="#" 
+
+            {/* YouTube Link (Replaced Twitter) */}
+            <a
+              href="https://youtube.com/@explicatostudios" // Your YouTube channel URL
+              target="_blank" // Opens in new tab
+              rel="noopener noreferrer" // Security best practice
               className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all duration-300"
-              aria-label="Twitter"
+              aria-label="YouTube" // Updated label
             >
-              <Twitter size={18} />
+              <Youtube size={18} /> {/* YouTube icon */}
             </a>
-            <a 
-              href="https://www.instagram.com/harold_n_louise" 
+
+            {/* Instagram Link */}
+            <a
+              href="https://www.instagram.com/harold_n_louise"
               className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all duration-300"
               aria-label="Instagram"
+              target="_blank" // Added for consistency
+              rel="noopener noreferrer" // Added for consistency
             >
               <Instagram size={18} />
             </a>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pt-8 border-t border-white/10">
           <div>
             <h4 className="text-white font-medium mb-4">Navigate</h4>
@@ -51,7 +61,7 @@ const Footer: React.FC = () => {
               ))}
             </ul>
           </div>
-          
+
           <div>
             <h4 className="text-white font-medium mb-4">Services</h4>
             <ul className="space-y-2">
@@ -64,7 +74,7 @@ const Footer: React.FC = () => {
               ))}
             </ul>
           </div>
-          
+
           <div>
             <h4 className="text-white font-medium mb-4">Legal</h4>
             <ul className="space-y-2">
@@ -77,7 +87,7 @@ const Footer: React.FC = () => {
               ))}
             </ul>
           </div>
-          
+
           <div>
             <h4 className="text-white font-medium mb-4">Contact</h4>
             <ul className="space-y-2 text-gray-400">
@@ -87,7 +97,7 @@ const Footer: React.FC = () => {
             </ul>
           </div>
         </div>
-        
+
         <div className="mt-12 pt-6 border-t border-white/10 text-center">
           <p className="text-gray-400 text-sm">
             © {new Date().getFullYear()} The Art of Digital Order. All rights reserved.

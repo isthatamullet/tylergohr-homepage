@@ -13,7 +13,15 @@ export default {
     'bg-accent-green',
     'bg-accent-green/20',
     'border-accent-green',
-    'border-accent-green/40'
+    'border-accent-green/40',
+    'bg-accent-red',
+    'bg-accent-red/20',
+    'border-accent-red',
+    'border-accent-red/40',
+    'bg-accent-blue',
+    'bg-accent-blue/20',
+    'border-accent-blue',
+    'border-accent-blue/40'
   ],
   theme: {
     extend: {
@@ -44,10 +52,15 @@ export default {
           blue: '#2196F3',
         },
       },
+      spacing: {
+        'screen': '100vh',
+      },
       animation: {
         'fade-down': 'fadeDown 1.5s ease-in-out infinite',
         'float': 'float 3s ease-in-out infinite',
         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'bounce-soft': 'bounce 2s cubic-bezier(0.28, 0.84, 0.42, 1) infinite',
+        'bounce-gentle': 'bounceGentle 2s ease-in-out infinite',
       },
       keyframes: {
         fadeDown: {
@@ -58,9 +71,20 @@ export default {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-10px)' },
         },
+        bounce: {
+          '0%, 100%': { transform: 'translateY(0) translateX(-50%)' },
+          '50%': { transform: 'translateY(-20px) translateX(-50%)' },
+        },
+        bounceGentle: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
       },
       perspective: {
         '1000': '1000px',
+      },
+      scale: {
+        '102': '1.02',
       },
     },
   },

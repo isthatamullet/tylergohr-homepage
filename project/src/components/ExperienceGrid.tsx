@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { experiences } from '../data/siteData';
 import * as Icons from 'lucide-react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import ParallaxSpheres from './ParallaxSpheres';
 
 const ExperienceGrid: React.FC = () => {
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
 
   const getIcon = (iconName: string) => {
     const LucideIcon = (Icons as any)[iconName];
@@ -15,9 +17,30 @@ const ExperienceGrid: React.FC = () => {
     setExpandedId(expandedId === id ? null : id);
   };
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!sectionRef.current) return;
+      
+      const rect = sectionRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const progress = Math.max(0, Math.min(1, 
+        (viewportHeight - rect.top) / (viewportHeight + rect.height)
+      ));
+      
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <section id="experience" className="py-20 bg-navy-dark relative">
+    <section ref={sectionRef} id="experience" className="py-20 bg-navy-dark relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,215,0,0.1)_0%,rgba(0,0,0,0)_50%)] z-0"></div>
+      
+      <ParallaxSpheres scrollProgress={scrollProgress} />
       
       <div className="container mx-auto px-6 z-10 relative">
         <div className="text-center mb-16">
@@ -34,8 +57,9 @@ const ExperienceGrid: React.FC = () => {
           {experiences.map(exp => (
             <div
               key={exp.id}
-              className={`bg-navy/80 backdrop-blur-sm rounded-lg overflow-hidden transition-all duration-500 group border border-white/10 hover:border-gold/30 ${
-                expandedId === exp.id ? 'shadow-2xl' : ''
+              onClick={() => toggleExpand(exp.id)}
+              className={`bg-navy/80 backdrop-blur-sm rounded-lg overflow-hidden transition-all duration-500 group cursor-pointer transform ${
+                expandedId === exp.id ? 'scale-105 shadow-2xl z-10' : 'hover:scale-102'
               }`}
             >
               <div className={`h-3 w-full bg-${exp.color}`}></div>
@@ -58,17 +82,6 @@ const ExperienceGrid: React.FC = () => {
                 <p className="text-gray-300 mb-4">
                   {exp.description}
                 </p>
-
-                <button
-                  onClick={() => toggleExpand(exp.id)}
-                  className="inline-flex items-center text-gold hover:text-gold-light transition-colors duration-300"
-                >
-                  {expandedId === exp.id ? (
-                    <>Show Less <ChevronUp size={16} className="ml-1" /></>
-                  ) : (
-                    <>Learn More <ChevronDown size={16} className="ml-1" /></>
-                  )}
-                </button>
 
                 <div className={`mt-4 space-y-2 transition-all duration-500 ${
                   expandedId === exp.id ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'

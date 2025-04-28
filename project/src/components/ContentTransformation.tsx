@@ -1,162 +1,134 @@
 import React, { useRef, useEffect, useState } from 'react';
+import DataStream from './DataStream';
 
 const ContentTransformation: React.FC = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const elementsRef = useRef<HTMLDivElement[]>([]);
-  const [containerWidth, setContainerWidth] = useState(0);
-  
+  const sectionRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [contentHeight, setContentHeight] = useState(0);
+
   useEffect(() => {
-    const updateDimensions = () => {
-      if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth);
-      }
-    };
-    
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
-  }, []);
-  
-  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
     const handleScroll = () => {
-      if (!containerRef.current) return;
-      
-      const container = containerRef.current;
-      const rect = container.getBoundingClientRect();
-      const scrollProgress = (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
-      
-      if (scrollProgress > 0 && scrollProgress < 1) {
-        // Adjust grid dimensions based on container width
-        const columns = containerWidth < 400 ? 3 : 5;
-        const spacing = containerWidth < 400 ? 50 : 80;
-        
-        elementsRef.current.forEach((element, index) => {
-          if (!element) return;
-          
-          // Calculate grid position
-          const col = index % columns;
-          const row = Math.floor(index / columns);
-          
-          // Center grid within container
-          const gridX = (col - Math.floor(columns / 2)) * spacing;
-          const gridY = (row - 1) * spacing;
-          
-          // Interpolate between random and grid positions
-          const randomX = element.dataset.randomX ? parseFloat(element.dataset.randomX) : 0;
-          const randomY = element.dataset.randomY ? parseFloat(element.dataset.randomY) : 0;
-          
-          const x = randomX + (gridX - randomX) * scrollProgress;
-          const y = randomY + (gridY - randomY) * scrollProgress;
-          
-          // Scale parallax effect based on container width
-          const depthScale = containerWidth < 400 ? 0.5 : 1;
-          const depth = (index % 3 + 1) * 20 * depthScale;
-          const parallaxY = (0.5 - scrollProgress) * depth;
-          
-          // Adjust scale and rotation based on container width
-          const maxScale = containerWidth < 400 ? 1.1 : 1.2;
-          const scale = 1 + Math.abs(0.5 - scrollProgress) * (maxScale - 1);
-          const rotate = (1 - scrollProgress) * (Math.random() * 360);
-          
-          element.style.transform = `translate(${x}px, ${y + parallaxY}px) rotate(${rotate}deg) scale(${scale})`;
-          element.style.opacity = (0.4 + scrollProgress * 0.6).toString();
-        });
+      if (!sectionRef.current) return;
+      const rect = sectionRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const progress = Math.max(0, Math.min(1,
+        (viewportHeight - rect.top) / (viewportHeight + rect.height)
+      ));
+      setScrollProgress(progress);
+    };
+
+    const updateContentHeight = () => {
+      if (contentRef.current) {
+        const height = contentRef.current.offsetHeight;
+        setContentHeight(height);
       }
     };
-    
-    // Initialize random positions scaled to container width
-    elementsRef.current.forEach((element) => {
-      if (!element) return;
-      const spreadFactor = containerWidth < 400 ? 150 : 300;
-      const randomX = (Math.random() - 0.5) * spreadFactor;
-      const randomY = (Math.random() - 0.5) * spreadFactor;
-      element.dataset.randomX = randomX.toString();
-      element.dataset.randomY = randomY.toString();
-      element.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${Math.random() * 360}deg)`;
-    });
-    
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Initial position
-    
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [containerWidth]);
-  
-  const getElementStyles = (element: { color: string, shape: string, width: number, height: number }) => {
-    const baseClasses = `absolute shadow-lg backdrop-blur-sm transition-all duration-700 ease-out`;
-    const shapeClass = element.shape === 'circle' ? 'rounded-full' : 'rounded-md';
-    const colorClasses = `bg-${element.color}/20 border border-${element.color}/40`;
-    
-    return `${baseClasses} ${shapeClass} ${colorClasses}`;
-  };
-  
-  const floatingElements = Array.from({ length: 15 }, (_, i) => {
-    const colors = ['teal', 'gold', 'accent-green'];
-    const shapes = ['square', 'rectangle', 'circle'];
-    const color = colors[i % colors.length];
-    const shape = shapes[i % shapes.length];
-    // Scale base size with container width
-    const baseSize = containerWidth < 400 ? 20 : 30;
-    const size = baseSize + Math.random() * baseSize;
-    const width = shape === 'rectangle' ? size * 1.5 : size;
-    const height = shape === 'rectangle' ? size * 0.75 : size;
-    
-    return { color, shape, width, height, id: i };
-  });
-  
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      window.addEventListener('resize', updateContentHeight);
+      
+      // Initial height calculation
+      updateContentHeight();
+    }
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', updateContentHeight);
+    };
+  }, []);
+
   return (
-    <section id="transformation" className="py-20 bg-navy-light relative overflow-hidden">
+    <section 
+      ref={sectionRef}
+      id="transformation" 
+      className="py-32 bg-navy-light relative overflow-hidden content-visibility-auto"
+    >
+      {/* Background Gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-navy-dark/50 via-transparent to-navy-light/80 z-0"></div>
       
-      <div className="container mx-auto px-6 z-10 relative">
+      <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 relative z-20">
             <span className="text-white">Content </span>
             <span className="text-teal">Transformation</span>
           </h2>
-          <p className="text-gray-300 max-w-2xl mx-auto">
+          <p className="text-gray-300 max-w-2xl mx-auto relative z-20">
             Watch as chaotic digital assets transform into organized, structured content ready for multi-platform delivery.
           </p>
         </div>
         
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-          <div className="w-full lg:w-1/2">
-            <div 
-              ref={containerRef}
-              className="relative h-[400px] w-full bg-navy-dark/50 rounded-xl border border-white/10 shadow-lg overflow-hidden flex items-center justify-center group perspective-1000"
-            >
-              <div className="absolute inset-0 bg-gradient-to-tr from-accent-red/10 via-accent-green/10 to-accent-blue/10 group-hover:opacity-75 transition-opacity duration-500"></div>
-              
-              {floatingElements.map((element, index) => (
-                <div
-                  key={element.id}
-                  ref={el => el && (elementsRef.current[index] = el)}
-                  className={getElementStyles(element)}
-                  style={{
-                    width: `${element.width}px`,
-                    height: `${element.height}px`,
-                    opacity: 0.4,
-                  }}
-                />
-              ))}
+        <div className="flex flex-col md:flex-row items-start justify-between gap-8">
+          {/* Data Stream Component */}
+          <div 
+            className="relative w-full transition-all duration-700 ease-out
+              md:w-[45%] lg:w-[40%] 
+              min-w-[300px] max-w-[600px]
+              order-2 md:order-1"
+            style={{
+              height: `${contentHeight}px`,
+              position: 'sticky',
+              top: '6rem',
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? 'translateY(0)' : 'translateY(10px)',
+            }}
+          >
+            <div className="relative h-full">
+              <DataStream isVisible={isVisible} scrollProgress={scrollProgress} />
             </div>
           </div>
           
-          <div className="w-full lg:w-1/2">
-            <h3 className="text-2xl font-bold mb-4 text-white">Digital Order in Motion</h3>
-            <p className="text-gray-300 mb-6">
-              Our content transformation process brings structure and organization to your digital assets. We implement:
-            </p>
-            
-            <ul className="space-y-4 mb-8">
-              {['Intelligent metadata schemas', 'Cross-platform delivery pipelines', 'Automated tagging systems', 'AI-powered content organization'].map((item, index) => (
-                <li key={index} className="flex items-start">
-                  <div className="h-6 w-6 rounded-full bg-teal/20 border border-teal/40 flex items-center justify-center mr-3 mt-0.5">
-                    <div className="h-2 w-2 rounded-full bg-teal"></div>
-                  </div>
-                  <span className="text-gray-200">{item}</span>
-                </li>
-              ))}
-            </ul>
+          {/* Content Section */}
+          <div 
+            ref={contentRef} 
+            className="w-full md:w-[55%] lg:w-1/2 md:ml-8 order-1 md:order-2 relative z-20"
+          >
+            <div className="bg-navy-light/95 backdrop-blur-md p-6 rounded-xl lg:bg-transparent lg:p-0">
+              <h3 className="text-2xl font-bold mb-4 text-white">Digital Order in Motion</h3>
+              <p className="text-gray-300 mb-6">
+                Our content transformation process brings structure and organization to your digital assets. We implement:
+              </p>
+              
+              <ul className="space-y-4 mb-8">
+                {[
+                  'Intelligent metadata schemas for enhanced discoverability',
+                  'Cross-platform delivery pipelines optimized for performance',
+                  'AI-powered automated tagging systems',
+                  'Structured content organization frameworks',
+                  'Real-time content synchronization',
+                  'Advanced search and filtering capabilities'
+                ].map((item, index) => (
+                  <li key={index} className="flex items-start">
+                    <div className="h-6 w-6 rounded-full bg-teal/20 border border-teal/40 flex items-center justify-center mr-3 mt-0.5">
+                      <div className="h-2 w-2 rounded-full bg-teal"></div>
+                    </div>
+                    <span className="text-gray-200">{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                <div className="bg-navy/30 backdrop-blur-sm rounded-lg p-4 border border-teal/20">
+                  <h4 className="text-teal font-semibold mb-2">Efficiency Gains</h4>
+                  <p className="text-gray-300 text-sm">Reduce content processing time by up to 60% through automated workflows and intelligent organization.</p>
+                </div>
+                <div className="bg-navy/30 backdrop-blur-sm rounded-lg p-4 border border-teal/20">
+                  <h4 className="text-teal font-semibold mb-2">Quality Assurance</h4>
+                  <p className="text-gray-300 text-sm">Ensure consistent metadata application and content structure across all platforms.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

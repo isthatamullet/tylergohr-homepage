@@ -1,24 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { services } from '../data/siteData';
 import * as Icons from 'lucide-react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import ParallaxSpheres from './ParallaxSpheres';
 
 const ServicesGrid: React.FC = () => {
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
 
   const getIcon = (iconName: string) => {
     const LucideIcon = (Icons as any)[iconName];
     return LucideIcon ? <LucideIcon size={24} /> : null;
   };
 
-  const toggleExpand = (id: number, e: React.MouseEvent) => {
-    e.preventDefault();
+  const toggleExpand = (id: number) => {
     setExpandedId(expandedId === id ? null : id);
   };
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!sectionRef.current) return;
+      
+      const rect = sectionRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const progress = Math.max(0, Math.min(1, 
+        (viewportHeight - rect.top) / (viewportHeight + rect.height)
+      ));
+      
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <section id="services" className="py-20 bg-navy relative">
+    <section ref={sectionRef} id="services" className="py-20 bg-navy relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,rgba(100,255,218,0.1)_0%,rgba(0,0,0,0)_50%)] z-0"></div>
+      
+      <ParallaxSpheres scrollProgress={scrollProgress} />
       
       <div className="container mx-auto px-6 z-10 relative">
         <div className="text-center mb-16">
@@ -35,8 +57,9 @@ const ServicesGrid: React.FC = () => {
           {services.map(service => (
             <div
               key={service.id}
-              className={`bg-navy-light/70 backdrop-blur-sm rounded-lg p-6 border border-white/10 hover:border-teal/30 transition-all duration-300 shadow-lg hover:shadow-teal/5 group ${
-                expandedId === service.id ? 'shadow-teal/20' : ''
+              onClick={() => toggleExpand(service.id)}
+              className={`bg-navy-light/70 backdrop-blur-sm rounded-lg p-6 border border-white/10 hover:border-teal/30 transition-all duration-300 shadow-lg hover:shadow-teal/5 group cursor-pointer transform ${
+                expandedId === service.id ? 'scale-105 shadow-teal/20 z-10' : 'hover:scale-102'
               }`}
             >
               <div className={`w-14 h-14 rounded-lg bg-${service.color}/10 border border-${service.color}/30 flex items-center justify-center mb-6 text-${service.color} group-hover:bg-${service.color}/20 transition-all duration-300`}>
@@ -50,17 +73,6 @@ const ServicesGrid: React.FC = () => {
               <p className="text-gray-300 mb-4">
                 {service.description}
               </p>
-              
-              <button
-                onClick={(e) => toggleExpand(service.id, e)}
-                className="inline-flex items-center text-teal hover:text-teal-light transition-colors duration-300"
-              >
-                {expandedId === service.id ? (
-                  <>Show Less <ChevronUp size={16} className="ml-1" /></>
-                ) : (
-                  <>Learn More <ChevronDown size={16} className="ml-1" /></>
-                )}
-              </button>
 
               <div className={`mt-4 space-y-2 transition-all duration-500 ${
                 expandedId === service.id ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'

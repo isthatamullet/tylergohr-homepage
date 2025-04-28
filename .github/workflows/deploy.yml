@@ -27,18 +27,28 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # Modified: Removed cache options temporarily for debugging
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18 # Or your preferred version
-          cache: 'npm'
-          cache-dependency-path: project/package-lock.json # Specify lock file location
+          # cache: 'npm' # Temporarily disabled
+          # cache-dependency-path: project/package-lock.json # Temporarily disabled
+
       - name: Install dependencies
-        run: npm ci --prefix project # Install dependencies in the project folder
+        run: npm ci --prefix project # Use ci for reliability
+
+      # ADDED: Debug step to check installation
+      - name: Check react-router-dom install
+        run: ls -la ./project/node_modules/react-router-dom
+
       - name: Build
         run: npm run build --prefix project # Run build script from the project folder
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

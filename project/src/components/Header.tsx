@@ -35,27 +35,33 @@ const Header: React.FC = () => {
       const observerOptions = {
         root: null,
         rootMargin: '0px',
-        threshold: 0.5
+        threshold: 0.5 // Trigger when 50% is visible
       };
 
+      // --- UPDATED: More specific observer callback ---
       const observerCallback = (entries: IntersectionObserverEntry[]) => {
-        let foundActive = false;
-        // Prioritize entries that are intersecting
+        // Filter entries that are currently intersecting
         const intersectingEntries = entries.filter(entry => entry.isIntersecting);
 
         if (intersectingEntries.length > 0) {
-            // If multiple are intersecting, maybe pick the one highest on screen?
-            // For now, let's take the last one reported as intersecting
-            // (A more robust approach might compare boundingClientRect.top)
-            setActiveSectionId(intersectingEntries[intersectingEntries.length - 1].target.id);
-            foundActive = true;
-        }
-
-        // Fallback to 'home' if near top and no specific section is active
-        if (!foundActive && window.scrollY < window.innerHeight * 0.5) {
-           setActiveSectionId('home');
+          // If there's one or more intersecting, find the one highest on the page
+          intersectingEntries.sort((a, b) =>
+            a.boundingClientRect.top - b.boundingClientRect.top
+          );
+          // The first element in the sorted array is the highest one
+          setActiveSectionId(intersectingEntries[0].target.id);
+        } else {
+          // If nothing is intersecting based on the threshold (e.g., scrolling between sections)
+          // Check if we are near the top to set 'home' active
+          if (window.scrollY < window.innerHeight * 0.5) {
+            setActiveSectionId('home');
+          }
+          // Optional: If scrolled far down past the last section, you might want
+          // to keep the last active ID or set it to null. This current logic
+          // might keep the last section active, or default to 'home' if scroll goes up.
         }
       };
+      // ----------------------------------------------
 
       const observer = new IntersectionObserver(observerCallback, observerOptions);
 
@@ -64,7 +70,6 @@ const Header: React.FC = () => {
         if (element) {
           observer.observe(element);
         } else {
-          // Only warn if it's not the 'home' id, as Hero might not always be mounted/relevant depending on structure
           if (id !== 'home') {
              console.warn(`IntersectionObserver target element with id "${id}" not found.`);
           }
@@ -86,13 +91,11 @@ const Header: React.FC = () => {
   };
 
   return (
-    // --- RESTORED header tag attributes ---
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled || mobileMenuOpen ? 'bg-navy shadow-lg py-3' : 'bg-transparent py-5'
       }`}
     >
-    {/* ----------------------------------- */}
       <div className="container mx-auto px-6 flex justify-between items-center relative z-50">
         <Link to="/" onClick={handleNavClick}> <Logo /> </Link>
 
@@ -117,7 +120,6 @@ const Header: React.FC = () => {
         </nav>
 
          {/* Mobile Menu Toggle Button */}
-         {/* --- RESTORED button tag attributes --- */}
          <button
            className="md:hidden w-12 h-12 relative focus:outline-none focus:ring-2 focus:ring-teal rounded-lg bg-transparent"
            onClick={handleMenuToggle}
@@ -126,7 +128,6 @@ const Header: React.FC = () => {
            aria-controls="mobile-menu"
            style={{ touchAction: 'manipulation' }}
          >
-         {/* ------------------------------------ */}
            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-5">
              <span className={`absolute h-0.5 w-6 bg-white transform transition-transform duration-300 ease-in-out ${ mobileMenuOpen ? 'rotate-45 translate-y-2.5' : 'translate-y-0' }`} />
              <span className={`absolute h-0.5 w-6 bg-white transition-opacity duration-300 ease-in-out ${ mobileMenuOpen ? 'opacity-0' : 'opacity-100' } translate-y-2`} />
@@ -136,13 +137,11 @@ const Header: React.FC = () => {
       </div>
 
       {/* Mobile Menu Overlay */}
-      {/* --- RESTORED div tag attributes --- */}
       <div
         id="mobile-menu"
         className={`fixed inset-0 bg-navy-dark/98 backdrop-blur-lg transition-all duration-500 ease-in-out md:hidden ${ mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none' }`}
         style={{ top: '0', zIndex: 40 }}
       >
-      {/* --------------------------------- */}
         <nav className="container mx-auto px-6 pt-24">
           <ul className="flex flex-col space-y-8 text-center">
             {navItems.map(item => {

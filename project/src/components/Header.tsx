@@ -1,85 +1,86 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { navItems } from '../data/siteData';
+// --- ADDED: Import the NavItem type ---
+// (Adjust path if your types file is located elsewhere, e.g., './types')
+import { type NavItem } from '../types';
+// -------------------------------------
 import Logo from './Logo';
 
 const Header: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSectionId, setActiveSectionId] = useState<string | null>('home');
+  // State for temporarily highlighting clicked mobile link
+  const [clickedItemId, setClickedItemId] = useState<string | null>(null);
   const location = useLocation();
 
-  // useEffect for header background and mobile menu body lock
+  // useEffect for header background visuals
   useEffect(() => {
-    const handleScrollVisuals = () => {
-      const scrollPosition = window.scrollY;
-      setScrolled(scrollPosition > 50);
-    };
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    const handleScrollVisuals = () => { setScrolled(window.scrollY > 50); };
+    if (mobileMenuOpen) { document.body.style.overflow = 'hidden'; }
+    else { document.body.style.overflow = ''; }
     window.addEventListener('scroll', handleScrollVisuals);
-    handleScrollVisuals(); // Initialize
+    handleScrollVisuals();
     return () => {
       window.removeEventListener('scroll', handleScrollVisuals);
       document.body.style.overflow = '';
     };
-  }, [mobileMenuOpen]); // End of first useEffect
+  }, [mobileMenuOpen]);
 
-  // useEffect for Intersection Observer (Active Link Logic)
+  // useEffect for Intersection Observer (Scroll-based Active Link)
   useEffect(() => {
     if (location.pathname === '/') {
       const sectionIds = navItems.map(item => item.id);
-      const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.5
-      };
-
+      const observerOptions = { root: null, rootMargin: '0px', threshold: 0.5 };
       const observerCallback = (entries: IntersectionObserverEntry[]) => {
         const intersectingEntries = entries.filter(entry => entry.isIntersecting);
-
         if (intersectingEntries.length > 0) {
-          intersectingEntries.sort((a, b) =>
-            a.boundingClientRect.top - b.boundingClientRect.top
-          );
+          intersectingEntries.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
           setActiveSectionId(intersectingEntries[0].target.id);
         } else {
-          if (window.scrollY < window.innerHeight * 0.5) {
-            setActiveSectionId('home');
-          }
+          if (window.scrollY < window.innerHeight * 0.5) { setActiveSectionId('home'); }
         }
       };
-
       const observer = new IntersectionObserver(observerCallback, observerOptions);
-
       sectionIds.forEach(id => {
         const element = document.getElementById(id);
-        if (element) {
-          observer.observe(element);
-        } else {
-          if (id !== 'home') {
-             console.warn(`IntersectionObserver target element with id "${id}" not found.`);
-          }
-        }
+        if (element) { observer.observe(element); }
+        else { if (id !== 'home') { console.warn(`Observer target element id="${id}" not found.`); } }
       });
-
       return () => observer.disconnect();
     } else {
       setActiveSectionId(null);
     }
-  }, [location.pathname]); // End of second useEffect
+  }, [location.pathname]);
+
 
   const handleMenuToggle = () => { setMobileMenuOpen(!mobileMenuOpen); };
-  const handleNavClick = () => { setMobileMenuOpen(false); }; // Closes mobile menu
+  // Original handler just closes menu
+  const handleNavClick = () => { setMobileMenuOpen(false); };
 
+  // Combined handler for Home link (scroll + close)
   const handleHomeClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    handleNavClick(); // Also close mobile menu
+    handleNavClick();
   };
 
+  // Handler for mobile link clicks (animation + action)
+  // Now uses the imported NavItem type
+  const handleMobileLinkClick = (item: NavItem) => {
+    setClickedItemId(item.id); // Trigger brief underline animation
+
+    if (item.id === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    setTimeout(() => {
+      setMobileMenuOpen(false);
+      setClickedItemId(null);
+    }, 400);
+  };
+
+  // Generates path for links
   const getPath = (itemId: string): string => {
     if (itemId === 'home') return '/';
     return `/#${itemId}`;
@@ -108,7 +109,6 @@ const Header: React.FC = () => {
                     className={`text-white hover:text-teal transition-colors duration-300 relative px-1 py-2 font-normal group ${isActive ? 'active-link' : ''}`}
                   >
                     {item.title}
-                     {/* Desktop underline uses rainbow gradient */}
                      <span className={`absolute bottom-0 left-0 block h-0.5 bg-gradient-to-r from-teal-400 via-lime-400 to-orange-500 transition-all duration-300 ease-out ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
                   </Link>
                 </li>
@@ -143,21 +143,23 @@ const Header: React.FC = () => {
         <nav className="container mx-auto px-6 pt-24">
           <ul className="flex flex-col space-y-8 text-center">
             {navItems.map(item => {
-               // Static active state based on scroll/observer
-               const isActive = item.id === activeSectionId && location.pathname === '/';
+               const isScrollActive = item.id === activeSectionId && location.pathname === '/';
+               const isClickActive = item.id === clickedItemId;
                const path = getPath(item.id);
               return (
               <li key={item.id}>
                 <Link
                   to={path}
-                  // Note: Click animation logic is NOT included in this test version
-                  onClick={item.id === 'home' ? handleHomeClick : handleNavClick}
-                  // --- UPDATED: TEMPORARY diagnostic style for active mobile link ---
-                  className={`text-white text-2xl hover:text-teal transition-colors duration-300 block py-2 font-normal relative group ${isActive ? 'bg-yellow-500 text-black rounded px-2' : ''}`}
-                  // -----------------------------------------------------------------
+                  onClick={() => handleMobileLinkClick(item)} // Parameter 'item' now matches type NavItem
+                  className={`text-white text-2xl hover:text-teal transition-colors duration-300 block py-2 font-normal relative group ${isScrollActive ? 'text-teal font-semibold' : ''}`}
                 >
                   {item.title}
-                  {/* No underline span here in this test version */}
+                  <span className={`
+                    absolute bottom-0 left-1/2 transform -translate-x-1/2 block h-0.5
+                    bg-gradient-to-r from-teal-400 via-lime-400 to-orange-500
+                    transition-all duration-300 ease-out
+                    ${isClickActive ? 'w-1/2' : 'w-0'}
+                  `}></span>
                 </Link>
               </li>
               );

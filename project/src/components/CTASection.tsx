@@ -1,10 +1,7 @@
 import React from 'react';
-// --- REMOVED: Unused Send icon import ---
-// import { Send } from 'lucide-react';
-// ----------------------------------------
+// No unused imports
 
 const CTASection: React.FC = () => {
-  // State and handlers removed for basic FormSubmit integration
 
   return (
     <section id="contact" className="py-20 bg-navy-dark relative">
@@ -38,11 +35,15 @@ const CTASection: React.FC = () => {
 
             {/* Form Side */}
             <div className="p-8 lg:p-12 bg-navy/50 backdrop-blur-md border-l border-white/10">
+              {/* --- UPDATED: Added target="_blank" to the form --- */}
               <form
-                action="https://formsubmit.co/682e37e118eb9c6df459b920a578b027" // Make sure this is your correct FormSubmit endpoint
+                action="https://formsubmit.co/682e37e118eb9c6df459b920a578b027" // Your FormSubmit endpoint
                 method="POST"
+                target="_blank" // <-- ADD THIS ATTRIBUTE
                 className="space-y-6"
               >
+              {/* ------------------------------------------------- */}
+
                 {/* FormSubmit Hidden Fields */}
                 <input type="hidden" name="_subject" value="New Submission from tylergohr.com!" />
                 <input type="hidden" name="_replyto" />

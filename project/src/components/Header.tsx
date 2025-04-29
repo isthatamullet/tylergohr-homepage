@@ -11,13 +11,13 @@ const Header: React.FC = () => {
   const [clickedItemId, setClickedItemId] = useState<string | null>(null);
   const location = useLocation();
 
-  // useEffect for header background visuals and mobile menu body lock
+  // useEffect for header background visuals
   useEffect(() => {
     const handleScrollVisuals = () => { setScrolled(window.scrollY > 50); };
     if (mobileMenuOpen) { document.body.style.overflow = 'hidden'; }
     else { document.body.style.overflow = ''; }
     window.addEventListener('scroll', handleScrollVisuals);
-    handleScrollVisuals(); // Initialize
+    handleScrollVisuals();
     return () => {
       window.removeEventListener('scroll', handleScrollVisuals);
       document.body.style.overflow = '';
@@ -26,18 +26,28 @@ const Header: React.FC = () => {
 
   // useEffect for Intersection Observer (Scroll-based Active Link)
   useEffect(() => {
+    // Only run on homepage
     if (location.pathname === '/') {
       const sectionIds = navItems.map(item => item.id);
       const observerOptions = { root: null, rootMargin: '0px', threshold: 0.5 };
+
       const observerCallback = (entries: IntersectionObserverEntry[]) => {
+        // Ignore observer updates if a click interaction is happening
+        if (clickedItemId !== null) {
+          return;
+        }
+
         const intersectingEntries = entries.filter(entry => entry.isIntersecting);
         if (intersectingEntries.length > 0) {
           intersectingEntries.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
           setActiveSectionId(intersectingEntries[0].target.id);
         } else {
-          if (window.scrollY < window.innerHeight * 0.5) { setActiveSectionId('home'); }
+          if (window.scrollY < window.innerHeight * 0.5) {
+            setActiveSectionId('home');
+          }
         }
       };
+
       const observer = new IntersectionObserver(observerCallback, observerOptions);
       sectionIds.forEach(id => {
         const element = document.getElementById(id);
@@ -48,42 +58,52 @@ const Header: React.FC = () => {
     } else {
       setActiveSectionId(null); // No section active on non-home pages
     }
-  }, [location.pathname]);
+    // Dependency array ensures effect reruns if path changes or a click interaction ends
+  }, [location.pathname, clickedItemId]);
 
+
+  // Toggles mobile menu visibility
   const handleMenuToggle = () => { setMobileMenuOpen(!mobileMenuOpen); };
-  const handleNavClick = () => { setMobileMenuOpen(false); }; // Closes mobile menu
+
+  // --- REMOVED handleNavClick as it's redundant ---
+
+  // Handler for Home/Logo clicks (sets state, scrolls top, closes menu after delay)
   const handleHomeClick = () => {
+    setActiveSectionId('home'); // Set state immediately
+    setClickedItemId('home');   // Trigger brief animation state
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    handleNavClick(); // Also close mobile menu
+    // Delay closing menu and resetting click state
+    setTimeout(() => {
+      setMobileMenuOpen(false); // Close menu directly
+      setClickedItemId(null);   // Reset animation state
+    }, 400); // Adjust delay as needed
   };
 
-  // Handler for mobile link clicks (animation + action)
+  // Handler for other mobile link clicks (sets state, allows default scroll, closes menu after delay)
   const handleMobileLinkClick = (item: NavItem) => {
+    setActiveSectionId(item.id); // Set active state immediately
     setClickedItemId(item.id); // Trigger brief underline animation
-    if (item.id === 'home') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    // Allow <Link> to handle navigation for other hash links
+    // Let <Link to...> handle navigation, HomePage useEffect handles scroll for hash links
     setTimeout(() => {
       setMobileMenuOpen(false); // Close menu after delay
       setClickedItemId(null); // Reset click state after menu closes
-    }, 400); // Adjust timing (ms) >= animation duration
+    }, 400);
   };
 
+  // Generates path for links
   const getPath = (itemId: string): string => {
     if (itemId === 'home') return '/';
     return `/#${itemId}`;
   };
 
   return (
-    // --- CORRECTED: Attributes are present ---
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled || mobileMenuOpen ? 'bg-navy shadow-lg py-3' : 'bg-transparent py-5'
       }`}
     >
-    {/* --------------------------------------- */}
       <div className="container mx-auto px-6 flex justify-between items-center relative z-50">
+        {/* Uses correct handleHomeClick */}
         <Link to="/" onClick={handleHomeClick}> <Logo /> </Link>
 
         {/* Desktop Navigation */}
@@ -96,6 +116,7 @@ const Header: React.FC = () => {
                 <li key={item.id}>
                   <Link
                     to={path}
+                    // Uses correct handleHomeClick only for home item
                     onClick={item.id === 'home' ? handleHomeClick : undefined}
                     className={`text-white hover:text-teal transition-colors duration-300 relative px-1 py-2 font-normal group ${isActive ? 'active-link' : ''}`}
                   >
@@ -109,16 +130,14 @@ const Header: React.FC = () => {
         </nav>
 
          {/* Mobile Menu Toggle Button */}
-         {/* --- CORRECTED: Attributes are present --- */}
          <button
            className="md:hidden w-12 h-12 relative focus:outline-none focus:ring-2 focus:ring-teal rounded-lg bg-transparent"
-           onClick={handleMenuToggle}
+           onClick={handleMenuToggle} // Correct handler
            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
            aria-expanded={mobileMenuOpen}
            aria-controls="mobile-menu"
            style={{ touchAction: 'manipulation' }}
          >
-         {/* --------------------------------------- */}
            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-5">
              <span className={`absolute h-0.5 w-6 bg-white transform transition-transform duration-300 ease-in-out ${ mobileMenuOpen ? 'rotate-45 translate-y-2.5' : 'translate-y-0' }`} />
              <span className={`absolute h-0.5 w-6 bg-white transition-opacity duration-300 ease-in-out ${ mobileMenuOpen ? 'opacity-0' : 'opacity-100' } translate-y-2`} />
@@ -128,15 +147,13 @@ const Header: React.FC = () => {
       </div>
 
       {/* Mobile Menu Overlay */}
-      {/* --- CORRECTED: Attributes are present --- */}
       <div
         id="mobile-menu"
         className={`fixed inset-0 bg-navy-dark/98 backdrop-blur-lg transition-all duration-500 ease-in-out md:hidden ${ mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none' }`}
         style={{ top: '0', zIndex: 40 }}
       >
-      {/* --------------------------------------- */}
         <nav className="container mx-auto px-6 pt-24">
-          <ul className="flex flex-col items-center space-y-8 text-center"> {/* Added items-center */}
+          <ul className="flex flex-col items-center space-y-8 text-center">
             {navItems.map(item => {
                const isScrollActive = item.id === activeSectionId && location.pathname === '/';
                const isClickActive = item.id === clickedItemId;
@@ -145,6 +162,7 @@ const Header: React.FC = () => {
               <li key={item.id}>
                 <Link
                   to={path}
+                  // Uses correct handler for all mobile links
                   onClick={() => handleMobileLinkClick(item)}
                   className={`
                     text-2xl hover:text-teal transition-colors duration-300 block py-2 font-normal relative group

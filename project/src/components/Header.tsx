@@ -26,28 +26,19 @@ const Header: React.FC = () => {
 
   // useEffect for Intersection Observer (Scroll-based Active Link)
   useEffect(() => {
-    // Only run on homepage
     if (location.pathname === '/') {
       const sectionIds = navItems.map(item => item.id);
       const observerOptions = { root: null, rootMargin: '0px', threshold: 0.5 };
-
       const observerCallback = (entries: IntersectionObserverEntry[]) => {
-        // Ignore observer updates if a click interaction is happening
-        if (clickedItemId !== null) {
-          return;
-        }
-
+        if (clickedItemId !== null) { return; } // Ignore observer during click/scroll action
         const intersectingEntries = entries.filter(entry => entry.isIntersecting);
         if (intersectingEntries.length > 0) {
           intersectingEntries.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
           setActiveSectionId(intersectingEntries[0].target.id);
         } else {
-          if (window.scrollY < window.innerHeight * 0.5) {
-            setActiveSectionId('home');
-          }
+          if (window.scrollY < window.innerHeight * 0.5) { setActiveSectionId('home'); }
         }
       };
-
       const observer = new IntersectionObserver(observerCallback, observerOptions);
       sectionIds.forEach(id => {
         const element = document.getElementById(id);
@@ -56,37 +47,31 @@ const Header: React.FC = () => {
       });
       return () => observer.disconnect();
     } else {
-      setActiveSectionId(null); // No section active on non-home pages
+      setActiveSectionId(null);
     }
-    // Dependency array ensures effect reruns if path changes or a click interaction ends
   }, [location.pathname, clickedItemId]);
-
 
   // Toggles mobile menu visibility
   const handleMenuToggle = () => { setMobileMenuOpen(!mobileMenuOpen); };
 
-  // --- REMOVED handleNavClick as it's redundant ---
-
   // Handler for Home/Logo clicks (sets state, scrolls top, closes menu after delay)
   const handleHomeClick = () => {
-    setActiveSectionId('home'); // Set state immediately
-    setClickedItemId('home');   // Trigger brief animation state
+    setActiveSectionId('home');
+    setClickedItemId('home');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Delay closing menu and resetting click state
     setTimeout(() => {
-      setMobileMenuOpen(false); // Close menu directly
-      setClickedItemId(null);   // Reset animation state
-    }, 400); // Adjust delay as needed
+      setMobileMenuOpen(false);
+      setClickedItemId(null);
+    }, 400);
   };
 
-  // Handler for other mobile link clicks (sets state, allows default scroll, closes menu after delay)
+  // Handler for non-Home mobile link clicks
   const handleMobileLinkClick = (item: NavItem) => {
-    setActiveSectionId(item.id); // Set active state immediately
-    setClickedItemId(item.id); // Trigger brief underline animation
-    // Let <Link to...> handle navigation, HomePage useEffect handles scroll for hash links
+    setActiveSectionId(item.id);
+    setClickedItemId(item.id);
     setTimeout(() => {
-      setMobileMenuOpen(false); // Close menu after delay
-      setClickedItemId(null); // Reset click state after menu closes
+      setMobileMenuOpen(false);
+      setClickedItemId(null);
     }, 400);
   };
 
@@ -103,7 +88,7 @@ const Header: React.FC = () => {
       }`}
     >
       <div className="container mx-auto px-6 flex justify-between items-center relative z-50">
-        {/* Uses correct handleHomeClick */}
+        {/* Uses handleHomeClick */}
         <Link to="/" onClick={handleHomeClick}> <Logo /> </Link>
 
         {/* Desktop Navigation */}
@@ -116,7 +101,7 @@ const Header: React.FC = () => {
                 <li key={item.id}>
                   <Link
                     to={path}
-                    // Uses correct handleHomeClick only for home item
+                    // Uses handleHomeClick only for home item
                     onClick={item.id === 'home' ? handleHomeClick : undefined}
                     className={`text-white hover:text-teal transition-colors duration-300 relative px-1 py-2 font-normal group ${isActive ? 'active-link' : ''}`}
                   >
@@ -132,7 +117,7 @@ const Header: React.FC = () => {
          {/* Mobile Menu Toggle Button */}
          <button
            className="md:hidden w-12 h-12 relative focus:outline-none focus:ring-2 focus:ring-teal rounded-lg bg-transparent"
-           onClick={handleMenuToggle} // Correct handler
+           onClick={handleMenuToggle}
            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
            aria-expanded={mobileMenuOpen}
            aria-controls="mobile-menu"
@@ -162,8 +147,9 @@ const Header: React.FC = () => {
               <li key={item.id}>
                 <Link
                   to={path}
-                  // Uses correct handler for all mobile links
-                  onClick={() => handleMobileLinkClick(item)}
+                  // --- UPDATED onClick for mobile links ---
+                  onClick={item.id === 'home' ? handleHomeClick : () => handleMobileLinkClick(item)}
+                  // ----------------------------------------
                   className={`
                     text-2xl hover:text-teal transition-colors duration-300 block py-2 font-normal relative group
                     inline-block px-3

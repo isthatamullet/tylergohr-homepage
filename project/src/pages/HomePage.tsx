@@ -27,7 +27,7 @@ const HomePage: React.FC = () => {
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-      }, 100);
+      }, 500);
     }
   }, [location.hash]);
 

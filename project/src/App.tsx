@@ -9,8 +9,7 @@ import TermsPage from './pages/TermsPage';
 // --- Import Base CSS ---
 import './index.css';
 
-// Define repository name for GitHub Pages subdirectory
-const repoName = 'tylergohr-homepage';
+// --- REMOVED: const repoName = ... ---
 
 function App() {
   // --- Global Effects ---
@@ -18,9 +17,9 @@ function App() {
     document.title = 'The Art of Digital Order | TG';
 
     const preloadLinks = [
-      // --- UPDATED: Added base path to asset ---
-      { rel: 'preload', href: `/${repoName}/assets/hero-bg.webp`, as: 'image' },
-      // -----------------------------------------
+      // --- REVERTED: Removed base path from asset ---
+      { rel: 'preload', href: '/assets/hero-bg.webp', as: 'image' },
+      // ---------------------------------------------
       { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
       { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
     ];
@@ -41,20 +40,13 @@ function App() {
 
   // --- Render Router ---
   return (
-    // --- ADDED: basename prop for subdirectory routing ---
-    <BrowserRouter basename={`/${repoName}/`}>
-    // -----------------------------------------------------
+    // --- REMOVED: basename prop (defaults to '/') ---
+    <BrowserRouter>
+    // -------------------------------------------------
       <Routes>
-        {/* Route for the main/home page */}
         <Route path="/" element={<HomePage />} />
-
-        {/* Route for the Privacy Policy page */}
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
-
-        {/* Route for the Terms of Service page */}
         <Route path="/terms" element={<TermsPage />} />
-
-        {/* Optional: Add a 404 page */}
         {/* <Route path="*" element={<NotFoundPage />} /> */}
       </Routes>
     </BrowserRouter>

@@ -42,7 +42,6 @@ function App() {
   return (
     // --- REMOVED: basename prop (defaults to '/') ---
     <BrowserRouter>
-    // -------------------------------------------------
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />

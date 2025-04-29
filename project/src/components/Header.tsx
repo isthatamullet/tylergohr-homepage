@@ -4,15 +4,19 @@ import { navItems } from '../data/siteData'; // Assuming format: [{ id: 'home', 
 import Logo from './Logo';
 
 const Header: React.FC = () => {
-  const [scrolled, setScrolled] = useState(false);
+  const [scrolled, setScrolled] = useState(false); // Note: setScrolled will not be updated while useEffect is commented out
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // --- THIS useEffect HOOK IS TEMPORARILY COMMENTED OUT FOR TESTING ---
+  /*
   useEffect(() => {
+    // This function changes header background on scroll
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       setScrolled(scrollPosition > 50);
     };
 
+    // This part prevents body scrolling when mobile menu is open
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -22,11 +26,15 @@ const Header: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     handleScroll(); // Initialize
 
+    // Cleanup function
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      // Ensure body scroll is re-enabled if component unmounts while menu is open
       document.body.style.overflow = '';
     };
-  }, [mobileMenuOpen]);
+  }, [mobileMenuOpen]); // This hook depends on mobileMenuOpen state
+  */
+  // ---------------------------------------------------------------------
 
   const handleMenuToggle = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -36,21 +44,19 @@ const Header: React.FC = () => {
     setMobileMenuOpen(false);
   };
 
-  // --- UPDATED: Function to generate correct path for page routes OR homepage sections ---
+  // Function to generate correct path for page routes OR homepage sections
   const getPath = (itemId: string): string => {
-    // Home always links to root '/'
     if (itemId === 'home') {
       return '/';
     }
-    // --- Other items link to root + hash, e.g., '/#services' ---
-    // This allows navigation TO the homepage and THEN scrolling to the section
+    // Other items link to root + hash, e.g., '/#services'
     return `/#${itemId}`;
-    // -----------------------------------------------------------
   };
-  // -------------------------------------------------------------------------------------
 
   return (
     <header
+      // Note: Header background might not change on scroll while useEffect is commented out
+      // It will still change when mobile menu opens because 'mobileMenuOpen' is checked here
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled || mobileMenuOpen ? 'bg-navy shadow-lg py-3' : 'bg-transparent py-5'
       }`}

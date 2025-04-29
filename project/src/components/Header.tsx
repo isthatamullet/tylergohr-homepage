@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { navItems } from '../data/siteData';
-// --- ADDED: Import the NavItem type ---
-// (Adjust path if your types file is located elsewhere, e.g., './types')
-import { type NavItem } from '../types';
-// -------------------------------------
+import { type NavItem } from '../types'; // Ensure path ../types is correct
 import Logo from './Logo';
 
 const Header: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSectionId, setActiveSectionId] = useState<string | null>('home');
-  // State for temporarily highlighting clicked mobile link
   const [clickedItemId, setClickedItemId] = useState<string | null>(null);
   const location = useLocation();
 
@@ -54,44 +50,35 @@ const Header: React.FC = () => {
     }
   }, [location.pathname]);
 
-
   const handleMenuToggle = () => { setMobileMenuOpen(!mobileMenuOpen); };
-  // Original handler just closes menu
   const handleNavClick = () => { setMobileMenuOpen(false); };
-
-  // Combined handler for Home link (scroll + close)
   const handleHomeClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     handleNavClick();
   };
-
-  // Handler for mobile link clicks (animation + action)
-  // Now uses the imported NavItem type
   const handleMobileLinkClick = (item: NavItem) => {
-    setClickedItemId(item.id); // Trigger brief underline animation
-
+    setClickedItemId(item.id);
     if (item.id === 'home') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
     setTimeout(() => {
       setMobileMenuOpen(false);
       setClickedItemId(null);
     }, 400);
   };
-
-  // Generates path for links
   const getPath = (itemId: string): string => {
     if (itemId === 'home') return '/';
     return `/#${itemId}`;
   };
 
   return (
+    // --- CORRECTED: Actual className attribute using 'scrolled' ---
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled || mobileMenuOpen ? 'bg-navy shadow-lg py-3' : 'bg-transparent py-5'
       }`}
     >
+    {/* ----------------------------------------------------------- */}
       <div className="container mx-auto px-6 flex justify-between items-center relative z-50">
         <Link to="/" onClick={handleHomeClick}> <Logo /> </Link>
 
@@ -118,6 +105,7 @@ const Header: React.FC = () => {
         </nav>
 
          {/* Mobile Menu Toggle Button */}
+         {/* --- CORRECTED: Actual button attributes using 'handleMenuToggle' --- */}
          <button
            className="md:hidden w-12 h-12 relative focus:outline-none focus:ring-2 focus:ring-teal rounded-lg bg-transparent"
            onClick={handleMenuToggle}
@@ -126,6 +114,7 @@ const Header: React.FC = () => {
            aria-controls="mobile-menu"
            style={{ touchAction: 'manipulation' }}
          >
+         {/* ------------------------------------------------------------------ */}
            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-5">
              <span className={`absolute h-0.5 w-6 bg-white transform transition-transform duration-300 ease-in-out ${ mobileMenuOpen ? 'rotate-45 translate-y-2.5' : 'translate-y-0' }`} />
              <span className={`absolute h-0.5 w-6 bg-white transition-opacity duration-300 ease-in-out ${ mobileMenuOpen ? 'opacity-0' : 'opacity-100' } translate-y-2`} />
@@ -135,13 +124,15 @@ const Header: React.FC = () => {
       </div>
 
       {/* Mobile Menu Overlay */}
+      {/* --- CORRECTED: Actual div attributes --- */}
       <div
         id="mobile-menu"
         className={`fixed inset-0 bg-navy-dark/98 backdrop-blur-lg transition-all duration-500 ease-in-out md:hidden ${ mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none' }`}
         style={{ top: '0', zIndex: 40 }}
       >
+      {/* -------------------------------------- */}
         <nav className="container mx-auto px-6 pt-24">
-          <ul className="flex flex-col space-y-8 text-center">
+          <ul className="flex flex-col items-center space-y-8 text-center"> {/* Added items-center */}
             {navItems.map(item => {
                const isScrollActive = item.id === activeSectionId && location.pathname === '/';
                const isClickActive = item.id === clickedItemId;
@@ -150,15 +141,19 @@ const Header: React.FC = () => {
               <li key={item.id}>
                 <Link
                   to={path}
-                  onClick={() => handleMobileLinkClick(item)} // Parameter 'item' now matches type NavItem
-                  className={`text-white text-2xl hover:text-teal transition-colors duration-300 block py-2 font-normal relative group ${isScrollActive ? 'text-teal font-semibold' : ''}`}
+                  onClick={() => handleMobileLinkClick(item)}
+                  className={`
+                    text-2xl hover:text-teal transition-colors duration-300 block py-2 font-normal relative group
+                    inline-block px-3
+                    ${isScrollActive ? 'text-teal font-semibold' : 'text-white'}
+                  `}
                 >
                   {item.title}
                   <span className={`
-                    absolute bottom-0 left-1/2 transform -translate-x-1/2 block h-0.5
+                    absolute bottom-0 left-0 block h-0.5
                     bg-gradient-to-r from-teal-400 via-lime-400 to-orange-500
                     transition-all duration-300 ease-out
-                    ${isClickActive ? 'w-1/2' : 'w-0'}
+                    ${isClickActive ? 'w-full' : 'w-0'}
                   `}></span>
                 </Link>
               </li>

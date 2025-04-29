@@ -1,4 +1,6 @@
-import React, { useEffect } from 'react';
+// --- UPDATED: Removed 'React,' as it's not explicitly read ---
+import { useEffect } from 'react';
+// -----------------------------------------------------------
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // --- Import Page Components ---
@@ -36,7 +38,7 @@ function App() {
       }
     });
 
-  }, []);
+  }, []); // useEffect still used here
 
   // --- Render Router ---
   return (

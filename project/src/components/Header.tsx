@@ -13,7 +13,7 @@ const Header: React.FC = () => {
   useEffect(() => {
     const handleScrollVisuals = () => {
       const scrollPosition = window.scrollY;
-      setScrolled(scrollPosition > 50); // Usage of setScrolled
+      setScrolled(scrollPosition > 50);
     };
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -21,12 +21,12 @@ const Header: React.FC = () => {
       document.body.style.overflow = '';
     }
     window.addEventListener('scroll', handleScrollVisuals);
-    handleScrollVisuals(); // Initialize
+    handleScrollVisuals();
     return () => {
       window.removeEventListener('scroll', handleScrollVisuals);
       document.body.style.overflow = '';
     };
-  }, [mobileMenuOpen]); // End of first useEffect
+  }, [mobileMenuOpen]);
 
   // useEffect for Intersection Observer (Active Link Logic)
   useEffect(() => {
@@ -45,10 +45,10 @@ const Header: React.FC = () => {
           intersectingEntries.sort((a, b) =>
             a.boundingClientRect.top - b.boundingClientRect.top
           );
-          setActiveSectionId(intersectingEntries[0].target.id); // Usage of setActiveSectionId
+          setActiveSectionId(intersectingEntries[0].target.id);
         } else {
           if (window.scrollY < window.innerHeight * 0.5) {
-            setActiveSectionId('home'); // Usage of setActiveSectionId
+            setActiveSectionId('home');
           }
         }
       };
@@ -68,29 +68,37 @@ const Header: React.FC = () => {
 
       return () => observer.disconnect();
     } else {
-      setActiveSectionId(null); // Usage of setActiveSectionId
+      setActiveSectionId(null);
     }
-  }, [location.pathname]); // End of second useEffect
+  }, [location.pathname]);
 
-  // handleMenuToggle IS used below in the button's onClick
   const handleMenuToggle = () => { setMobileMenuOpen(!mobileMenuOpen); };
-  const handleNavClick = () => { setMobileMenuOpen(false); };
+  const handleNavClick = () => { setMobileMenuOpen(false); }; // Closes mobile menu
 
-  // getPath uses itemId parameter
   const getPath = (itemId: string): string => {
     if (itemId === 'home') return '/';
     return `/#${itemId}`;
   };
 
+  // --- Function to handle clicks on Home/Logo link ---
+  const handleHomeClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    handleNavClick(); // Also close mobile menu if open
+  };
+  // ----------------------------------------------------
+
   return (
-    // scrolled IS used here in className
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled || mobileMenuOpen ? 'bg-navy shadow-lg py-3' : 'bg-transparent py-5'
       }`}
     >
       <div className="container mx-auto px-6 flex justify-between items-center relative z-50">
-        <Link to="/" onClick={handleNavClick}> <Logo /> </Link>
+        {/* --- UPDATED: Added onClick for Logo Link --- */}
+        <Link to="/" onClick={handleHomeClick}>
+          <Logo />
+        </Link>
+        {/* ------------------------------------------- */}
 
         {/* --- TEMPORARY DEBUG DISPLAY --- */}
         <div className="text-red-500 text-xs font-mono absolute top-full left-6 mt-1">
@@ -103,11 +111,14 @@ const Header: React.FC = () => {
           <ul className="flex space-x-8">
             {navItems.map(item => {
               const isActive = item.id === activeSectionId && location.pathname === '/';
-              // getPath(item.id) is used here
+              const path = getPath(item.id);
               return (
                 <li key={item.id}>
                   <Link
-                    to={getPath(item.id)}
+                    to={path}
+                    // --- UPDATED: Added onClick for 'home' item ---
+                    onClick={item.id === 'home' ? handleHomeClick : undefined}
+                    // ----------------------------------------------
                     className={`text-white hover:text-teal transition-colors duration-300 relative px-1 py-2 font-normal group ${isActive ? 'active-link' : ''}`}
                   >
                     {item.title}
@@ -120,10 +131,9 @@ const Header: React.FC = () => {
         </nav>
 
          {/* Mobile Menu Toggle Button */}
-         {/* handleMenuToggle IS used here in onClick */}
          <button
            className="md:hidden w-12 h-12 relative focus:outline-none focus:ring-2 focus:ring-teal rounded-lg bg-transparent"
-           onClick={handleMenuToggle}
+           onClick={handleMenuToggle} // This just toggles visibility
            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
            aria-expanded={mobileMenuOpen}
            aria-controls="mobile-menu"
@@ -147,13 +157,15 @@ const Header: React.FC = () => {
           <ul className="flex flex-col space-y-8 text-center">
             {navItems.map(item => {
                const isActive = item.id === activeSectionId && location.pathname === '/';
-              // getPath(item.id) is used here
+               const path = getPath(item.id);
               return (
               <li key={item.id}>
                 <Link
-                  to={getPath(item.id)}
+                  to={path}
                   className={`text-white text-2xl hover:text-teal transition-colors duration-300 block py-2 font-normal ${isActive ? 'text-teal font-semibold' : ''}`}
-                  onClick={handleNavClick}
+                  // --- UPDATED: Use combined handler for 'home', regular handler otherwise ---
+                  onClick={item.id === 'home' ? handleHomeClick : handleNavClick}
+                  // ---------------------------------------------------------------------------
                 >
                   {item.title}
                 </Link>

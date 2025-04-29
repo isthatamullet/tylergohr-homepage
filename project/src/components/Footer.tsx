@@ -6,17 +6,23 @@ import Logo from './Logo';
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
+  // --- Function to handle clicks on Home/Logo link ---
+  const handleHomeClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  // ----------------------------------------------------
+
   return (
     <footer className="py-12 bg-navy-dark border-t border-white/10">
       <div className="container mx-auto px-6">
         {/* --- Top Section: Logo and Social Links --- */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-10">
           <div className="mb-6 md:mb-0">
-             {/* --- ADDED: Link logo to homepage --- */}
-             <Link to="/">
+             {/* --- UPDATED: Added onClick for Logo Link --- */}
+             <Link to="/" onClick={handleHomeClick}>
                 <Logo />
              </Link>
-             {/* ------------------------------------- */}
+             {/* ------------------------------------------- */}
           </div>
           {/* External social links using <a> */}
           <div className="flex space-x-6">
@@ -34,13 +40,17 @@ const Footer: React.FC = () => {
             <h4 className="text-white font-medium mb-4">Navigate</h4>
             <ul className="space-y-2">
               {['Home', 'Services', 'Experience', 'Portfolio', 'Contact'].map((item, index) => {
-                // --- UPDATED: Ensure paths are '/' or '/#sectionId' ---
                 const sectionId = item.toLowerCase();
                 const path = item === 'Home' ? '/' : `/#${sectionId}`;
-                // ------------------------------------------------------
                 return (
                   <li key={index}>
-                    <Link to={path} className="text-gray-400 hover:text-teal transition-colors duration-300">
+                    <Link
+                      to={path}
+                      // --- UPDATED: Added onClick for 'Home' item ---
+                      onClick={item === 'Home' ? handleHomeClick : undefined}
+                      // ----------------------------------------------
+                      className="text-gray-400 hover:text-teal transition-colors duration-300"
+                    >
                       {item}
                     </Link>
                   </li>
@@ -55,11 +65,9 @@ const Footer: React.FC = () => {
             <ul className="space-y-2">
               {['Content Architecture', 'Metadata Frameworks', 'Multi-Platform Distribution', 'Team Training'].map((item, index) => (
                 <li key={index}>
-                  {/* --- This link format should work correctly with basename --- */}
                   <Link to="/#services" className="text-gray-400 hover:text-teal transition-colors duration-300">
                     {item}
                   </Link>
-                  {/* ------------------------------------------------------------ */}
                 </li>
               ))}
             </ul>
@@ -69,10 +77,8 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-white font-medium mb-4">Legal</h4>
             <ul className="space-y-2">
-              {/* --- These links should work correctly with basename --- */}
               <li><Link to="/privacy" className="text-gray-400 hover:text-teal transition-colors duration-300">Privacy Policy</Link></li>
               <li><Link to="/terms" className="text-gray-400 hover:text-teal transition-colors duration-300">Terms of Service</Link></li>
-              {/* ------------------------------------------------------- */}
             </ul>
           </div>
 
@@ -82,7 +88,6 @@ const Footer: React.FC = () => {
             <ul className="space-y-2 text-gray-400">
               <li>Meridian, ID</li>
               <li>
-                {/* External tel link uses <a> */}
                 <a href="tel:+14249011420" className="text-gray-400 hover:text-teal transition-colors duration-300">
                   +1 (424) 901-1420
                 </a>

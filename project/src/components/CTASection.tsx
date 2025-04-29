@@ -45,7 +45,7 @@ const CTASection: React.FC = () => {
                 className="space-y-6"
               >
                 {/* Optional: Add hidden fields provided by FormSubmit */}
-                <input type="hidden" name="_subject" value="New Submission from tylerghor-homepage!" />
+                <input type="hidden" name="_subject" value="New Submission from tylergohr.com!" />
                 <input type="hidden" name="_replyto" /> {/* Uses the value from the 'email' input below */}
                 {/* <input type="hidden" name="_next" value="https://yoursite.co/thanks.html" /> */} {/* Optional: Uncomment and set URL for custom thank you page */}
                 {/* <input type="hidden" name="_captcha" value="false" /> */} {/* Optional: Uncomment to disable reCAPTCHA (not recommended) */}

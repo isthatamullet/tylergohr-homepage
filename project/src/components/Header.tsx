@@ -24,37 +24,61 @@ const Header: React.FC = () => {
     };
   }, [mobileMenuOpen]);
 
-  // useEffect for Intersection Observer (Scroll-based Active Link)
+  // useEffect for Intersection Observer (Active Link Logic)
   useEffect(() => {
     if (location.pathname === '/') {
       const sectionIds = navItems.map(item => item.id);
-      const observerOptions = { root: null, rootMargin: '0px', threshold: 0.5 };
+
+      // --- UPDATED: Refined observer options for potentially better stability ---
+      const observerOptions = {
+        root: null, // relative to document viewport
+        // Trigger when section enters/leaves a zone starting 10% from viewport top
+        // and ending 20% from viewport bottom (adjust % as needed)
+        rootMargin: '-10% 0px -20% 0px',
+        threshold: 0 // Trigger as soon as any part crosses the margin boundaries
+      };
+      // ------------------------------------------------------------------------
+
       const observerCallback = (entries: IntersectionObserverEntry[]) => {
         if (clickedItemId !== null) { return; } // Ignore observer during click/scroll action
+
         const intersectingEntries = entries.filter(entry => entry.isIntersecting);
+
         if (intersectingEntries.length > 0) {
-          intersectingEntries.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          // Sort by position on screen (highest first)
+          intersectingEntries.sort((a, b) =>
+            a.boundingClientRect.top - b.boundingClientRect.top
+          );
+          // Set the highest visible section within the rootMargin as active
           setActiveSectionId(intersectingEntries[0].target.id);
         } else {
-          if (window.scrollY < window.innerHeight * 0.5) { setActiveSectionId('home'); }
+          // Fallback to 'home' if near top (adjust threshold if needed)
+          if (window.scrollY < window.innerHeight * 0.3) { // Using 30% of viewport height as threshold
+            setActiveSectionId('home');
+          }
+          // If scrolled past last section & nothing intersects the margin, the last ID will persist
         }
       };
+
       const observer = new IntersectionObserver(observerCallback, observerOptions);
+
       sectionIds.forEach(id => {
         const element = document.getElementById(id);
         if (element) { observer.observe(element); }
         else { if (id !== 'home') { console.warn(`Observer target element id="${id}" not found.`); } }
       });
+
       return () => observer.disconnect();
     } else {
-      setActiveSectionId(null);
+      setActiveSectionId(null); // No section active on non-home pages
     }
   }, [location.pathname, clickedItemId]);
+
 
   // Toggles mobile menu visibility
   const handleMenuToggle = () => { setMobileMenuOpen(!mobileMenuOpen); };
 
-  // Handler for Home/Logo clicks (sets state, scrolls top, closes menu after delay)
+  // Handler for Home/Logo clicks
   const handleHomeClick = () => {
     setActiveSectionId('home');
     setClickedItemId('home');
@@ -88,7 +112,6 @@ const Header: React.FC = () => {
       }`}
     >
       <div className="container mx-auto px-6 flex justify-between items-center relative z-50">
-        {/* Uses handleHomeClick */}
         <Link to="/" onClick={handleHomeClick}> <Logo /> </Link>
 
         {/* Desktop Navigation */}
@@ -101,7 +124,6 @@ const Header: React.FC = () => {
                 <li key={item.id}>
                   <Link
                     to={path}
-                    // Uses handleHomeClick only for home item
                     onClick={item.id === 'home' ? handleHomeClick : undefined}
                     className={`text-white hover:text-teal transition-colors duration-300 relative px-1 py-2 font-normal group ${isActive ? 'active-link' : ''}`}
                   >
@@ -147,9 +169,7 @@ const Header: React.FC = () => {
               <li key={item.id}>
                 <Link
                   to={path}
-                  // --- UPDATED onClick for mobile links ---
                   onClick={item.id === 'home' ? handleHomeClick : () => handleMobileLinkClick(item)}
-                  // ----------------------------------------
                   className={`
                     text-2xl hover:text-teal transition-colors duration-300 block py-2 font-normal relative group
                     inline-block px-3

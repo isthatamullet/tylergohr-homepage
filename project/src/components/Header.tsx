@@ -13,7 +13,7 @@ const Header: React.FC = () => {
   useEffect(() => {
     const handleScrollVisuals = () => {
       const scrollPosition = window.scrollY;
-      setScrolled(scrollPosition > 50);
+      setScrolled(scrollPosition > 50); // Usage of setScrolled
     };
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -21,12 +21,12 @@ const Header: React.FC = () => {
       document.body.style.overflow = '';
     }
     window.addEventListener('scroll', handleScrollVisuals);
-    handleScrollVisuals();
+    handleScrollVisuals(); // Initialize
     return () => {
       window.removeEventListener('scroll', handleScrollVisuals);
       document.body.style.overflow = '';
     };
-  }, [mobileMenuOpen]);
+  }, [mobileMenuOpen]); // End of first useEffect
 
   // useEffect for Intersection Observer (Active Link Logic)
   useEffect(() => {
@@ -35,33 +35,23 @@ const Header: React.FC = () => {
       const observerOptions = {
         root: null,
         rootMargin: '0px',
-        threshold: 0.5 // Trigger when 50% is visible
+        threshold: 0.5
       };
 
-      // --- UPDATED: More specific observer callback ---
       const observerCallback = (entries: IntersectionObserverEntry[]) => {
-        // Filter entries that are currently intersecting
         const intersectingEntries = entries.filter(entry => entry.isIntersecting);
 
         if (intersectingEntries.length > 0) {
-          // If there's one or more intersecting, find the one highest on the page
           intersectingEntries.sort((a, b) =>
             a.boundingClientRect.top - b.boundingClientRect.top
           );
-          // The first element in the sorted array is the highest one
-          setActiveSectionId(intersectingEntries[0].target.id);
+          setActiveSectionId(intersectingEntries[0].target.id); // Usage of setActiveSectionId
         } else {
-          // If nothing is intersecting based on the threshold (e.g., scrolling between sections)
-          // Check if we are near the top to set 'home' active
           if (window.scrollY < window.innerHeight * 0.5) {
-            setActiveSectionId('home');
+            setActiveSectionId('home'); // Usage of setActiveSectionId
           }
-          // Optional: If scrolled far down past the last section, you might want
-          // to keep the last active ID or set it to null. This current logic
-          // might keep the last section active, or default to 'home' if scroll goes up.
         }
       };
-      // ----------------------------------------------
 
       const observer = new IntersectionObserver(observerCallback, observerOptions);
 
@@ -78,19 +68,22 @@ const Header: React.FC = () => {
 
       return () => observer.disconnect();
     } else {
-      setActiveSectionId(null);
+      setActiveSectionId(null); // Usage of setActiveSectionId
     }
-  }, [location.pathname]);
+  }, [location.pathname]); // End of second useEffect
 
+  // handleMenuToggle IS used below in the button's onClick
   const handleMenuToggle = () => { setMobileMenuOpen(!mobileMenuOpen); };
   const handleNavClick = () => { setMobileMenuOpen(false); };
 
+  // getPath uses itemId parameter
   const getPath = (itemId: string): string => {
     if (itemId === 'home') return '/';
     return `/#${itemId}`;
   };
 
   return (
+    // scrolled IS used here in className
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled || mobileMenuOpen ? 'bg-navy shadow-lg py-3' : 'bg-transparent py-5'
@@ -99,11 +92,18 @@ const Header: React.FC = () => {
       <div className="container mx-auto px-6 flex justify-between items-center relative z-50">
         <Link to="/" onClick={handleNavClick}> <Logo /> </Link>
 
+        {/* --- TEMPORARY DEBUG DISPLAY --- */}
+        <div className="text-red-500 text-xs font-mono absolute top-full left-6 mt-1">
+             Current Active ID: {activeSectionId || 'None'}
+        </div>
+        {/* ----------------------------- */}
+
         {/* Desktop Navigation */}
         <nav className="hidden md:block">
           <ul className="flex space-x-8">
             {navItems.map(item => {
               const isActive = item.id === activeSectionId && location.pathname === '/';
+              // getPath(item.id) is used here
               return (
                 <li key={item.id}>
                   <Link
@@ -120,6 +120,7 @@ const Header: React.FC = () => {
         </nav>
 
          {/* Mobile Menu Toggle Button */}
+         {/* handleMenuToggle IS used here in onClick */}
          <button
            className="md:hidden w-12 h-12 relative focus:outline-none focus:ring-2 focus:ring-teal rounded-lg bg-transparent"
            onClick={handleMenuToggle}
@@ -146,6 +147,7 @@ const Header: React.FC = () => {
           <ul className="flex flex-col space-y-8 text-center">
             {navItems.map(item => {
                const isActive = item.id === activeSectionId && location.pathname === '/';
+              // getPath(item.id) is used here
               return (
               <li key={item.id}>
                 <Link

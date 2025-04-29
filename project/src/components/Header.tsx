@@ -4,13 +4,11 @@ import { navItems } from '../data/siteData'; // Assuming format: [{ id: 'home', 
 import Logo from './Logo';
 
 const Header: React.FC = () => {
-  const [scrolled, setScrolled] = useState(false); // Note: setScrolled will not be updated while useEffect is commented out
+  const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // --- THIS useEffect HOOK IS TEMPORARILY COMMENTED OUT FOR TESTING ---
-  /*
+  // --- This useEffect hook handles scroll detection and mobile menu body lock ---
   useEffect(() => {
-    // This function changes header background on scroll
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       setScrolled(scrollPosition > 50);
@@ -33,8 +31,7 @@ const Header: React.FC = () => {
       document.body.style.overflow = '';
     };
   }, [mobileMenuOpen]); // This hook depends on mobileMenuOpen state
-  */
-  // ---------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
 
   const handleMenuToggle = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -55,8 +52,6 @@ const Header: React.FC = () => {
 
   return (
     <header
-      // Note: Header background might not change on scroll while useEffect is commented out
-      // It will still change when mobile menu opens because 'mobileMenuOpen' is checked here
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled || mobileMenuOpen ? 'bg-navy shadow-lg py-3' : 'bg-transparent py-5'
       }`}

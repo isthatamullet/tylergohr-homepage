@@ -73,19 +73,17 @@ const Header: React.FC = () => {
   }, [location.pathname]);
 
   const handleMenuToggle = () => { setMobileMenuOpen(!mobileMenuOpen); };
-  const handleNavClick = () => { setMobileMenuOpen(false); }; // Closes mobile menu
+  const handleNavClick = () => { setMobileMenuOpen(false); };
+
+  const handleHomeClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    handleNavClick();
+  };
 
   const getPath = (itemId: string): string => {
     if (itemId === 'home') return '/';
     return `/#${itemId}`;
   };
-
-  // --- Function to handle clicks on Home/Logo link ---
-  const handleHomeClick = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    handleNavClick(); // Also close mobile menu if open
-  };
-  // ----------------------------------------------------
 
   return (
     <header
@@ -94,17 +92,12 @@ const Header: React.FC = () => {
       }`}
     >
       <div className="container mx-auto px-6 flex justify-between items-center relative z-50">
-        {/* --- UPDATED: Added onClick for Logo Link --- */}
         <Link to="/" onClick={handleHomeClick}>
           <Logo />
         </Link>
-        {/* ------------------------------------------- */}
 
-        {/* --- TEMPORARY DEBUG DISPLAY --- */}
-        <div className="text-red-500 text-xs font-mono absolute top-full left-6 mt-1">
-             Current Active ID: {activeSectionId || 'None'}
-        </div>
-        {/* ----------------------------- */}
+        {/* --- REMOVED TEMPORARY DEBUG DISPLAY --- */}
+        {/* -------------------------------------- */}
 
         {/* Desktop Navigation */}
         <nav className="hidden md:block">
@@ -116,13 +109,18 @@ const Header: React.FC = () => {
                 <li key={item.id}>
                   <Link
                     to={path}
-                    // --- UPDATED: Added onClick for 'home' item ---
                     onClick={item.id === 'home' ? handleHomeClick : undefined}
-                    // ----------------------------------------------
                     className={`text-white hover:text-teal transition-colors duration-300 relative px-1 py-2 font-normal group ${isActive ? 'active-link' : ''}`}
                   >
                     {item.title}
-                     <span className={`absolute bottom-0 left-0 block h-0.5 bg-teal transition-all duration-300 ease-out ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
+                     {/* --- UPDATED Underline Element for Active State --- */}
+                     <span className={`
+                       absolute bottom-0 left-0 block h-0.5
+                       bg-gradient-to-r from-teal-400 via-lime-400 to-orange-500 {/* Gradient colors */}
+                       transition-all duration-300 ease-out
+                       ${isActive ? 'w-full' : 'w-0 group-hover:w-full'} {/* Animate width */}
+                     `}></span>
+                     {/* ----------------------------------------------- */}
                   </Link>
                 </li>
               );
@@ -133,7 +131,7 @@ const Header: React.FC = () => {
          {/* Mobile Menu Toggle Button */}
          <button
            className="md:hidden w-12 h-12 relative focus:outline-none focus:ring-2 focus:ring-teal rounded-lg bg-transparent"
-           onClick={handleMenuToggle} // This just toggles visibility
+           onClick={handleMenuToggle}
            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
            aria-expanded={mobileMenuOpen}
            aria-controls="mobile-menu"
@@ -163,9 +161,7 @@ const Header: React.FC = () => {
                 <Link
                   to={path}
                   className={`text-white text-2xl hover:text-teal transition-colors duration-300 block py-2 font-normal ${isActive ? 'text-teal font-semibold' : ''}`}
-                  // --- UPDATED: Use combined handler for 'home', regular handler otherwise ---
                   onClick={item.id === 'home' ? handleHomeClick : handleNavClick}
-                  // ---------------------------------------------------------------------------
                 >
                   {item.title}
                 </Link>

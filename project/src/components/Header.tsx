@@ -21,12 +21,12 @@ const Header: React.FC = () => {
       document.body.style.overflow = '';
     }
     window.addEventListener('scroll', handleScrollVisuals);
-    handleScrollVisuals();
+    handleScrollVisuals(); // Initialize
     return () => {
       window.removeEventListener('scroll', handleScrollVisuals);
       document.body.style.overflow = '';
     };
-  }, [mobileMenuOpen]);
+  }, [mobileMenuOpen]); // End of first useEffect
 
   // useEffect for Intersection Observer (Active Link Logic)
   useEffect(() => {
@@ -70,14 +70,14 @@ const Header: React.FC = () => {
     } else {
       setActiveSectionId(null);
     }
-  }, [location.pathname]);
+  }, [location.pathname]); // End of second useEffect
 
   const handleMenuToggle = () => { setMobileMenuOpen(!mobileMenuOpen); };
-  const handleNavClick = () => { setMobileMenuOpen(false); };
+  const handleNavClick = () => { setMobileMenuOpen(false); }; // Closes mobile menu
 
   const handleHomeClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    handleNavClick();
+    handleNavClick(); // Also close mobile menu
   };
 
   const getPath = (itemId: string): string => {
@@ -92,12 +92,7 @@ const Header: React.FC = () => {
       }`}
     >
       <div className="container mx-auto px-6 flex justify-between items-center relative z-50">
-        <Link to="/" onClick={handleHomeClick}>
-          <Logo />
-        </Link>
-
-        {/* --- REMOVED TEMPORARY DEBUG DISPLAY --- */}
-        {/* -------------------------------------- */}
+        <Link to="/" onClick={handleHomeClick}> <Logo /> </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:block">
@@ -113,14 +108,8 @@ const Header: React.FC = () => {
                     className={`text-white hover:text-teal transition-colors duration-300 relative px-1 py-2 font-normal group ${isActive ? 'active-link' : ''}`}
                   >
                     {item.title}
-                     {/* --- UPDATED Underline Element for Active State --- */}
-                     <span className={`
-                       absolute bottom-0 left-0 block h-0.5
-                       bg-gradient-to-r from-teal-400 via-lime-400 to-orange-500 {/* Gradient colors */}
-                       transition-all duration-300 ease-out
-                       ${isActive ? 'w-full' : 'w-0 group-hover:w-full'} {/* Animate width */}
-                     `}></span>
-                     {/* ----------------------------------------------- */}
+                     {/* Desktop underline uses rainbow gradient */}
+                     <span className={`absolute bottom-0 left-0 block h-0.5 bg-gradient-to-r from-teal-400 via-lime-400 to-orange-500 transition-all duration-300 ease-out ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
                   </Link>
                 </li>
               );
@@ -154,16 +143,21 @@ const Header: React.FC = () => {
         <nav className="container mx-auto px-6 pt-24">
           <ul className="flex flex-col space-y-8 text-center">
             {navItems.map(item => {
+               // Static active state based on scroll/observer
                const isActive = item.id === activeSectionId && location.pathname === '/';
                const path = getPath(item.id);
               return (
               <li key={item.id}>
                 <Link
                   to={path}
-                  className={`text-white text-2xl hover:text-teal transition-colors duration-300 block py-2 font-normal ${isActive ? 'text-teal font-semibold' : ''}`}
+                  // Note: Click animation logic is NOT included in this test version
                   onClick={item.id === 'home' ? handleHomeClick : handleNavClick}
+                  // --- UPDATED: TEMPORARY diagnostic style for active mobile link ---
+                  className={`text-white text-2xl hover:text-teal transition-colors duration-300 block py-2 font-normal relative group ${isActive ? 'bg-yellow-500 text-black rounded px-2' : ''}`}
+                  // -----------------------------------------------------------------
                 >
                   {item.title}
+                  {/* No underline span here in this test version */}
                 </Link>
               </li>
               );

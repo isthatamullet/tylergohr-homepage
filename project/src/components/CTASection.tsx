@@ -40,7 +40,7 @@ const CTASection: React.FC = () => {
               {/* Remove the conditional rendering for success message */}
               {/* The form will always be displayed */}
               <form
-                action="https://formsubmit.co/contact@tylergohr.com" // <-- *** REPLACE WITH YOUR ACTUAL EMAIL ***
+                action="https://formsubmit.co/682e37e118eb9c6df459b920a578b027" // <-- *** REPLACE WITH YOUR ACTUAL EMAIL ***
                 method="POST"
                 className="space-y-6"
               >

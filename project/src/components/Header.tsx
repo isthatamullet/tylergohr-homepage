@@ -11,13 +11,13 @@ const Header: React.FC = () => {
   const [clickedItemId, setClickedItemId] = useState<string | null>(null);
   const location = useLocation();
 
-  // useEffect for header background visuals
+  // useEffect for header background visuals and mobile menu body lock
   useEffect(() => {
     const handleScrollVisuals = () => { setScrolled(window.scrollY > 50); };
     if (mobileMenuOpen) { document.body.style.overflow = 'hidden'; }
     else { document.body.style.overflow = ''; }
     window.addEventListener('scroll', handleScrollVisuals);
-    handleScrollVisuals();
+    handleScrollVisuals(); // Initialize
     return () => {
       window.removeEventListener('scroll', handleScrollVisuals);
       document.body.style.overflow = '';
@@ -46,39 +46,43 @@ const Header: React.FC = () => {
       });
       return () => observer.disconnect();
     } else {
-      setActiveSectionId(null);
+      setActiveSectionId(null); // No section active on non-home pages
     }
   }, [location.pathname]);
 
   const handleMenuToggle = () => { setMobileMenuOpen(!mobileMenuOpen); };
-  const handleNavClick = () => { setMobileMenuOpen(false); };
+  const handleNavClick = () => { setMobileMenuOpen(false); }; // Closes mobile menu
   const handleHomeClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    handleNavClick();
+    handleNavClick(); // Also close mobile menu
   };
+
+  // Handler for mobile link clicks (animation + action)
   const handleMobileLinkClick = (item: NavItem) => {
-    setClickedItemId(item.id);
+    setClickedItemId(item.id); // Trigger brief underline animation
     if (item.id === 'home') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+    // Allow <Link> to handle navigation for other hash links
     setTimeout(() => {
-      setMobileMenuOpen(false);
-      setClickedItemId(null);
-    }, 400);
+      setMobileMenuOpen(false); // Close menu after delay
+      setClickedItemId(null); // Reset click state after menu closes
+    }, 400); // Adjust timing (ms) >= animation duration
   };
+
   const getPath = (itemId: string): string => {
     if (itemId === 'home') return '/';
     return `/#${itemId}`;
   };
 
   return (
-    // --- CORRECTED: Actual className attribute using 'scrolled' ---
+    // --- CORRECTED: Attributes are present ---
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled || mobileMenuOpen ? 'bg-navy shadow-lg py-3' : 'bg-transparent py-5'
       }`}
     >
-    {/* ----------------------------------------------------------- */}
+    {/* --------------------------------------- */}
       <div className="container mx-auto px-6 flex justify-between items-center relative z-50">
         <Link to="/" onClick={handleHomeClick}> <Logo /> </Link>
 
@@ -105,7 +109,7 @@ const Header: React.FC = () => {
         </nav>
 
          {/* Mobile Menu Toggle Button */}
-         {/* --- CORRECTED: Actual button attributes using 'handleMenuToggle' --- */}
+         {/* --- CORRECTED: Attributes are present --- */}
          <button
            className="md:hidden w-12 h-12 relative focus:outline-none focus:ring-2 focus:ring-teal rounded-lg bg-transparent"
            onClick={handleMenuToggle}
@@ -114,7 +118,7 @@ const Header: React.FC = () => {
            aria-controls="mobile-menu"
            style={{ touchAction: 'manipulation' }}
          >
-         {/* ------------------------------------------------------------------ */}
+         {/* --------------------------------------- */}
            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-5">
              <span className={`absolute h-0.5 w-6 bg-white transform transition-transform duration-300 ease-in-out ${ mobileMenuOpen ? 'rotate-45 translate-y-2.5' : 'translate-y-0' }`} />
              <span className={`absolute h-0.5 w-6 bg-white transition-opacity duration-300 ease-in-out ${ mobileMenuOpen ? 'opacity-0' : 'opacity-100' } translate-y-2`} />
@@ -124,13 +128,13 @@ const Header: React.FC = () => {
       </div>
 
       {/* Mobile Menu Overlay */}
-      {/* --- CORRECTED: Actual div attributes --- */}
+      {/* --- CORRECTED: Attributes are present --- */}
       <div
         id="mobile-menu"
         className={`fixed inset-0 bg-navy-dark/98 backdrop-blur-lg transition-all duration-500 ease-in-out md:hidden ${ mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none' }`}
         style={{ top: '0', zIndex: 40 }}
       >
-      {/* -------------------------------------- */}
+      {/* --------------------------------------- */}
         <nav className="container mx-auto px-6 pt-24">
           <ul className="flex flex-col items-center space-y-8 text-center"> {/* Added items-center */}
             {navItems.map(item => {
@@ -149,11 +153,12 @@ const Header: React.FC = () => {
                   `}
                 >
                   {item.title}
+                  {/* Mobile Underline Span based on scroll OR click */}
                   <span className={`
                     absolute bottom-0 left-0 block h-0.5
                     bg-gradient-to-r from-teal-400 via-lime-400 to-orange-500
                     transition-all duration-300 ease-out
-                    ${isClickActive ? 'w-full' : 'w-0'}
+                    ${isScrollActive || isClickActive ? 'w-full' : 'w-0'} {/* Use OR condition */}
                   `}></span>
                 </Link>
               </li>

@@ -2,25 +2,15 @@ import React, { useRef, useEffect, useState } from 'react';
 // No Link import needed
 import DataStream from './DataStream';
 
-// Helper function to check if mobile (adjust breakpoint if needed)
-const isMobileScreen = () => typeof window !== 'undefined' && window.innerWidth < 768;
+// Helper function removed as state was removed
 
 const ContentTransformation: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  // Removed contentRef, contentHeight
   const [isVisible, setIsVisible] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [isMobile, setIsMobile] = useState(isMobileScreen());
+  // Removed isMobile state and contentHeight state
 
-  // Effect to handle screen resize
-  useEffect(() => {
-    const handleResize = () => { setIsMobile(isMobileScreen()); };
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Initial check
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Effect for Intersection Observer (visibility) & Scroll Progress
+  // Simplified Effect for Intersection Observer (visibility) & Scroll Progress ONLY
   useEffect(() => {
     const intersectionObserver = new IntersectionObserver(
       ([entry]) => setIsVisible(entry.isIntersecting),
@@ -44,7 +34,7 @@ const ContentTransformation: React.FC = () => {
       }
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, []); // Run only once on mount
 
   return (
     <section
@@ -66,10 +56,12 @@ const ContentTransformation: React.FC = () => {
           </p>
         </div>
 
+        {/* Original gap-8 */}
         <div className="flex flex-col md:flex-row items-start justify-between gap-8">
 
           {/* Data Stream Component Container */}
           <div
+            // --- CORRECTED className (invalid comment removed) ---
             className={`relative w-full transition-opacity duration-500 ease-out
                       md:w-[45%] lg:w-[40%]
                       min-w-[300px] max-w-[600px]
@@ -78,17 +70,17 @@ const ContentTransformation: React.FC = () => {
                       md:h-[500px] lg:h-[550px]
                       md:sticky
                       md:self-start
+                      -mt-24 md:mt-0
                     `}
+            // --------------------------------------------------
             style={{
-              position: isMobile ? 'relative' : 'sticky',
+              position: 'sticky',
               top: '6rem',
               opacity: isVisible ? 1 : 0,
               transform: isVisible ? 'translateY(0)' : 'translateY(10px)',
             }}
           >
-            {/* --- UPDATED Inner Div: Added flex centering --- */}
             <div className="relative h-full bg-black/10 backdrop-blur-sm rounded-xl overflow-hidden flex items-center justify-center">
-            {/* --------------------------------------------- */}
               <DataStream isVisible={isVisible} scrollProgress={scrollProgress} />
             </div>
           </div>
@@ -98,6 +90,7 @@ const ContentTransformation: React.FC = () => {
             className="w-full md:w-[55%] lg:w-1/2 md:ml-8 order-1 md:order-2 relative z-20"
           >
             <div className="bg-navy-light/95 backdrop-blur-md p-6 rounded-xl lg:bg-transparent lg:p-0">
+               {/* --- RESTORED Content --- */}
                <h3 className="text-2xl font-bold mb-4 text-white">Digital Order in Motion</h3>
                <p className="text-gray-300 mb-6">
                  Our content transformation process brings structure and organization to your digital assets. We implement:
@@ -129,6 +122,7 @@ const ContentTransformation: React.FC = () => {
                    <p className="text-gray-300 text-sm">Ensure consistent metadata application and content structure across all platforms.</p>
                  </div>
                </div>
+               {/* ----------------------- */}
             </div>
           </div>
         </div>

@@ -10,33 +10,37 @@ const ScrollIndicator: React.FC = () => {
       const scrollPosition = window.scrollY;
       const viewportHeight = window.innerHeight;
       const fadeThreshold = viewportHeight * 0.3;
-      
-      // Calculate opacity based on scroll position
+
       const newOpacity = Math.max(0, 1 - (scrollPosition / fadeThreshold));
       setOpacity(newOpacity);
       setIsVisible(scrollPosition < viewportHeight * 0.5);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    // Call handler once initially in case user loads already scrolled down
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Don't render if not visible
+  // Don't render if not visible or fully faded
   if (!isVisible || opacity <= 0) return null;
 
   return (
-    <div 
-      className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 animate-bounce-gentle pointer-events-none"
-      style={{ 
+    <div
+      // --- UPDATED className for alternative centering ---
+      className="fixed bottom-8 left-0 right-0 w-8 mx-auto z-40 animate-bounce-gentle pointer-events-none"
+      // -------------------------------------------------
+      style={{
         opacity,
         transition: 'opacity 0.3s ease-out',
-        willChange: 'opacity, transform'
+        willChange: 'opacity' // Removed transform from willChange as it's not animated here
       }}
     >
-      <ChevronDown 
-        size={32} 
-        className="text-teal"
-        style={{ 
+      {/* Ensure icon itself fills the div or is centered if needed */}
+      <ChevronDown
+        size={32} // w-8 h-8
+        className="text-teal block" // Added 'block' just in case
+        style={{
           filter: 'drop-shadow(0 0 8px rgba(100, 255, 218, 0.3))'
         }}
       />

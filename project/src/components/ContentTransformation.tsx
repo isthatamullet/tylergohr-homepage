@@ -1,24 +1,36 @@
 import React, { useRef, useEffect, useState } from 'react';
-// No Link import needed
+// Removed Link import
 import DataStream from './DataStream';
+
+// Helper function to check if mobile (adjust breakpoint if needed)
+const isMobileScreen = () => typeof window !== 'undefined' && window.innerWidth < 768;
 
 const ContentTransformation: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  // REMOVED contentRef
+  // REMOVED contentRef, contentHeight - relying on CSS height now
   const [isVisible, setIsVisible] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  // REMOVED contentHeight state
-  // REMOVED isMobile state
+  // --- Re-added isMobile state ---
+  const [isMobile, setIsMobile] = useState(isMobileScreen());
+  // -----------------------------
 
-  // Simplified Effect for Intersection Observer (visibility) & Scroll Progress ONLY
+  // --- Re-added effect to handle screen resize ---
+  useEffect(() => {
+    const handleResize = () => { setIsMobile(isMobileScreen()); };
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initial check
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  // -------------------------------------------
+
+  // Effect for Intersection Observer (visibility) & Scroll Progress
   useEffect(() => {
     const intersectionObserver = new IntersectionObserver(
       ([entry]) => setIsVisible(entry.isIntersecting),
-      { threshold: 0.1 } // Observe visibility
+      { threshold: 0.1 }
     );
 
     const handleScroll = () => {
-        // Scroll progress calculation remains the same
         if (!sectionRef.current) return;
         const rect = sectionRef.current.getBoundingClientRect();
         const viewportHeight = window.innerHeight;
@@ -41,7 +53,7 @@ const ContentTransformation: React.FC = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   // Run only once on mount
-  }, []); // Dependency array is empty
+  }, []);
 
   return (
     <section
@@ -58,45 +70,45 @@ const ContentTransformation: React.FC = () => {
             <span className="text-white">Content </span>
             <span className="text-teal">Transformation</span>
           </h2>
-          <p className="text-gray-300 max-w-2xl mx-auto relative z-20">
-            Watch as chaotic digital assets transform into organized, structured content ready for multi-platform delivery.
-          </p>
+          <p className="text-gray-300 max-w-2xl mx-auto relative z-20">...</p>
         </div>
 
-        {/* Using original gap-8 */}
+        {/* Original gap-8 */}
         <div className="flex flex-col md:flex-row items-start justify-between gap-8">
 
           {/* Data Stream Component Container */}
           <div
-            // --- UPDATED className: Simpler, uses fixed height on md+ ---
+            // --- UPDATED className: Defines aspect, height, sticky responsively ---
             className={`relative w-full transition-opacity duration-500 ease-out
                       md:w-[45%] lg:w-[40%]
-                      min-w-[300px] max-w-[600px] // Keep width constraints
+                      min-w-[300px] max-w-[600px]
                       order-2 md:order-1
-                      aspect-square md:aspect-auto // Square mobile, auto ratio desktop
-                      md:sticky // Sticky positioning medium and up
-                      md:h-[500px] lg:h-[550px] // *** ADDED Fixed heights for md and lg ***
-                      md:self-start // Prevent stretching on desktop flex row
+                      aspect-square md:aspect-auto ${/* Shape: Square mobile, auto desktop */''}
+                      md:h-[500px] lg:h-[550px] ${/* Fixed height on desktop */''}
+                      md:sticky ${/* Sticky on desktop */''}
+                      md:self-start ${/* Prevent stretching */''}
                     `}
-            // -----------------------------------------------------------
-            // --- UPDATED style: Removed height property ---
+            // --------------------------------------------------------------------
+            // --- UPDATED style: Conditional position, no height ---
             style={{
-              // height removed - letting classes handle it
-              position: 'sticky', // Keep sticky
-              top: '6rem', // Keep sticky top offset
+              // Explicitly set position based on screen size via style to ensure override
+              position: isMobile ? 'relative' : 'sticky',
+              top: '6rem', // Apply sticky top offset always
               opacity: isVisible ? 1 : 0,
               transform: isVisible ? 'translateY(0)' : 'translateY(10px)',
             }}
-            // -------------------------------------------
+            // ------------------------------------------------------
           >
-            <div className="relative h-full"> {/* h-full should work with fixed parent height */}
+            {/* Inner div needs height to contain DataStream */}
+            {/* Let's try h-full, which should respect aspect-square or fixed height */}
+            <div className="relative h-full bg-black/10 backdrop-blur-sm rounded-xl overflow-hidden"> {/* Added bg for visibility */}
               <DataStream isVisible={isVisible} scrollProgress={scrollProgress} />
             </div>
           </div>
 
-          {/* Content Section (No longer needs ref for height) */}
+          {/* Content Section */}
           <div
-            // ref={contentRef} // Removed ref
+            // Removed ref
             className="w-full md:w-[55%] lg:w-1/2 md:ml-8 order-1 md:order-2 relative z-20"
           >
             <div className="bg-navy-light/95 backdrop-blur-md p-6 rounded-xl lg:bg-transparent lg:p-0">

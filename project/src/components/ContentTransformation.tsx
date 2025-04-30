@@ -1,25 +1,31 @@
 import React, { useRef, useEffect, useState } from 'react';
-// Link import removed as unused
+// No Link import needed
 import DataStream from './DataStream';
 
-// Helper function to check if mobile remains removed as state was removed
+// Helper function to check if mobile (adjust breakpoint if needed)
+const isMobileScreen = () => typeof window !== 'undefined' && window.innerWidth < 768;
 
 const ContentTransformation: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  // REMOVED contentRef, contentHeight
+  // Removed contentRef, contentHeight
   const [isVisible, setIsVisible] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  // REMOVED isMobile state
+  const [isMobile, setIsMobile] = useState(isMobileScreen());
 
-  // REMOVED useEffect for screen resize
+  // Effect to handle screen resize
+  useEffect(() => {
+    const handleResize = () => { setIsMobile(isMobileScreen()); };
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initial check
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  // Effect for Intersection Observer (visibility) & Scroll Progress ONLY
+  // Effect for Intersection Observer (visibility) & Scroll Progress
   useEffect(() => {
     const intersectionObserver = new IntersectionObserver(
       ([entry]) => setIsVisible(entry.isIntersecting),
-      { threshold: 0.1 } // Observe visibility
+      { threshold: 0.1 }
     );
-
     const handleScroll = () => {
         if (!sectionRef.current) return;
         const rect = sectionRef.current.getBoundingClientRect();
@@ -27,29 +33,24 @@ const ContentTransformation: React.FC = () => {
         const progress = Math.max(0, Math.min(1, (viewportHeight - rect.top) / (viewportHeight + rect.height)));
         setScrollProgress(progress);
     };
-
     const currentSectionRef = sectionRef.current;
-
     if (currentSectionRef) {
       intersectionObserver.observe(currentSectionRef);
       window.addEventListener('scroll', handleScroll, { passive: true });
     }
-
-    // Cleanup function
     return () => {
       if (currentSectionRef) {
         intersectionObserver.unobserve(currentSectionRef);
       }
       window.removeEventListener('scroll', handleScroll);
     };
-  // Run only once on mount
-  }, []); // Dependency array is empty
+  }, []);
 
   return (
     <section
       ref={sectionRef}
       id="transformation"
-      className="py-32 bg-navy-light relative overflow-hidden content-visibility-auto mb-16" // Removed content-visibility-auto just in case
+      className="py-32 bg-navy-light relative overflow-hidden mb-16" // Removed content-visibility-auto
     >
       {/* Background Gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-navy-dark/50 via-transparent to-navy-light/80 z-0"></div>
@@ -60,14 +61,11 @@ const ContentTransformation: React.FC = () => {
             <span className="text-white">Content </span>
             <span className="text-teal">Transformation</span>
           </h2>
-          {/* --- RESTORED Paragraph Text --- */}
           <p className="text-gray-300 max-w-2xl mx-auto relative z-20">
             Watch as chaotic digital assets transform into organized, structured content ready for multi-platform delivery.
           </p>
-          {/* ----------------------------- */}
         </div>
 
-        {/* Original gap-8 */}
         <div className="flex flex-col md:flex-row items-start justify-between gap-8">
 
           {/* Data Stream Component Container */}
@@ -82,25 +80,24 @@ const ContentTransformation: React.FC = () => {
                       md:self-start
                     `}
             style={{
-              // Removed height property from style
-              position: 'sticky', // Keep sticky always for simplicity now
+              position: isMobile ? 'relative' : 'sticky',
               top: '6rem',
               opacity: isVisible ? 1 : 0,
               transform: isVisible ? 'translateY(0)' : 'translateY(10px)',
             }}
           >
-            <div className="relative h-full bg-black/10 backdrop-blur-sm rounded-xl overflow-hidden">
+            {/* --- UPDATED Inner Div: Added flex centering --- */}
+            <div className="relative h-full bg-black/10 backdrop-blur-sm rounded-xl overflow-hidden flex items-center justify-center">
+            {/* --------------------------------------------- */}
               <DataStream isVisible={isVisible} scrollProgress={scrollProgress} />
             </div>
           </div>
 
           {/* Content Section */}
           <div
-            // Removed ref
             className="w-full md:w-[55%] lg:w-1/2 md:ml-8 order-1 md:order-2 relative z-20"
           >
             <div className="bg-navy-light/95 backdrop-blur-md p-6 rounded-xl lg:bg-transparent lg:p-0">
-               {/* --- RESTORED Content --- */}
                <h3 className="text-2xl font-bold mb-4 text-white">Digital Order in Motion</h3>
                <p className="text-gray-300 mb-6">
                  Our content transformation process brings structure and organization to your digital assets. We implement:
@@ -132,7 +129,6 @@ const ContentTransformation: React.FC = () => {
                    <p className="text-gray-300 text-sm">Ensure consistent metadata application and content structure across all platforms.</p>
                  </div>
                </div>
-               {/* ----------------------- */}
             </div>
           </div>
         </div>
